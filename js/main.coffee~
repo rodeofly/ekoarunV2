@@ -232,7 +232,7 @@ operation_sur_equation = (mode, id) ->
           when "diviser"
             facteur.inverse()
             multiplier_membre(facteur,id)
-          when "multiplier" then multiplier_membre facteur,id
+          when "multiplier_distribuer" then multiplier_membre facteur,id
           when "retrancher" then ajouter_membre id, array, -1
           when "ajouter"    then ajouter_membre id, array, 1
       when 2 
@@ -440,7 +440,7 @@ $ ->
   #Obtenir la solution de l'equation s'il ne reste plus qu'un symbole à gauche
   $( "body" ).on "click", ".obtenirSolution", () -> obtenir_la_solution(id) if id = get_focused_id()                           
   # operation par le contenu de la console chaque membre de l'equation
-  $( "body" ).on "click", ".multiplier", () -> operation_sur_equation( "multiplier" )   
+  $( "body" ).on "click", ".multiplier_distribuer", () -> operation_sur_equation( "multiplier_distribuer" )   
   $( "body" ).on "click", ".diviser",    () -> operation_sur_equation( "diviser" )
   $( "body" ).on "click", ".ajouter",    () -> operation_sur_equation( "ajouter" )
   $( "body" ).on "click", ".retrancher", () -> operation_sur_equation( "retrancher" )      

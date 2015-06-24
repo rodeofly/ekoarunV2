@@ -249,39 +249,6 @@ $ ->
 ###################################################################################################
 ###################################################################################################
 ###################################################################################################
-# Graph
-  board = JXG.JSXGraph.initBoard('box', {boundingbox:[-5,8,8,-5], axis:true})
-  # Macro function plotter
-  addCurve = (board, func, atts) -> f = board.create('functiongraph', [func], atts)
-  # Simplified plotting of function
-  plot = (func, atts) ->
-    if (atts==null)
-      return addCurve(board, func, {strokewidth:2})
-    else
-      return addCurve(board, func, atts)
-  #Free point
-  p = board.create('point', [1,1], {style:6, name:'p'})
-  
-  clearAll = () ->
-    JXG.JSXGraph.freeBoard(board)
-    board = JXG.JSXGraph.initBoard('box', {boundingbox:[-5,8,8,-5], axis:true})
-    p = board.create('point', [3,-4], {style:6, name:'p'})
-    
-  doIt = () ->
-    s = $( "#equation_string" ).val()
-    s = s.replace(/[\(]/g,"").replace(/\)/g,"").replace(/\x/g,"*x").replace(/\+\-/, "-")
-    f = s.split(/[=<>≤≥]/)[0]
-    f = "function f(x){ return #{f};};plot(f);"
-    g = s.split(/[=<>≤≥]/)[1]
-    g = "function g(x){ return #{g};};plot(g);"
-    eval(f+g)
-  
-  $( "#plotter" ).on "click", () -> doIt()
-  $( "#eraser" ).on "click", () -> clearAll()
-   
-###################################################################################################
-###################################################################################################
-###################################################################################################
 #Equation CRUD
   $( "#generer_equation" ).on "click", -> $( "#equation_string" ).val generate_equation_string Math.floor(10*Math.random())+1   
 

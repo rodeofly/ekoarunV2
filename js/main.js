@@ -440,55 +440,7 @@
   };
 
   $(function() {
-    var addCurve, board, clearAll, doIt, monome_irreductible, once, p, plot;
-    board = JXG.JSXGraph.initBoard('box', {
-      boundingbox: [-5, 8, 8, -5],
-      axis: true
-    });
-    addCurve = function(board, func, atts) {
-      var f;
-      return f = board.create('functiongraph', [func], atts);
-    };
-    plot = function(func, atts) {
-      if (atts === null) {
-        return addCurve(board, func, {
-          strokewidth: 2
-        });
-      } else {
-        return addCurve(board, func, atts);
-      }
-    };
-    p = board.create('point', [1, 1], {
-      style: 6,
-      name: 'p'
-    });
-    clearAll = function() {
-      JXG.JSXGraph.freeBoard(board);
-      board = JXG.JSXGraph.initBoard('box', {
-        boundingbox: [-5, 8, 8, -5],
-        axis: true
-      });
-      return p = board.create('point', [3, -4], {
-        style: 6,
-        name: 'p'
-      });
-    };
-    doIt = function() {
-      var f, g, s;
-      s = $("#equation_string").val();
-      s = s.replace(/[\(]/g, "").replace(/\)/g, "").replace(/\x/g, "*x").replace(/\+\-/, "-");
-      f = s.split(/[=<>≤≥]/)[0];
-      f = "function f(x){ return " + f + ";};plot(f);";
-      g = s.split(/[=<>≤≥]/)[1];
-      g = "function g(x){ return " + g + ";};plot(g);";
-      return eval(f + g);
-    };
-    $("#plotter").on("click", function() {
-      return doIt();
-    });
-    $("#eraser").on("click", function() {
-      return clearAll();
-    });
+    var monome_irreductible, once;
     $("#generer_equation").on("click", function() {
       return $("#equation_string").val(generate_equation_string(Math.floor(10 * Math.random()) + 1));
     });
