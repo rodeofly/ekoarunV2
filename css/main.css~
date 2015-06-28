@@ -178,41 +178,12 @@ button.deleteButton {
   box-shadow: 0 0 10px #9ecaed;
 }
 
-
-.membre_droite, .membre_gauche {
-  margin:0px;
-  padding: 0px;
-  min-height : 2em;
-  min-width : 100px;
-  display: inline-block;
-}
-.membre_gauche {
-  text-align : right;	
-}
-.membre_droite {
-  text-align : left;
-}
-
-.signe {
-  margin: 0px 50px 0px 50px;
-  padding: 0px;
-  display : inline-block;
-  vertical-align : middle;
-  font-size : 2em;
-  font-weight : bold;
-}
-
 #equation_panel {
   position: relative;
   vertical-align: top;
   right : 0%; top : 0%;
-  width: 100%; 
-  padding: 1em;
-  display: inline-flex;
-  flex-flow: row wrap;
-  justify-content: justify;
-  align-content: stretch; 
-  border-radius: 1em;
+  width: 90%; 
+  padding: 2em;
 }
 
 #equation_string {
@@ -255,14 +226,12 @@ button.deleteButton {
 }
 
 .JXGimage {
-    opacity: 1.0;
+    opacity: 0;
 }
 
 .JXGimageHighlight {
-    opacity: 0.6;
+    opacity: 0;
 }
-
-
 
 /**************fraction*************************/
 .fraction, .top, .bottom {
@@ -277,14 +246,28 @@ button.deleteButton {
 }
 
 .bottom{
-    border-top: 2px solid black;
-    display: block;
+  border-top: 2px solid black;
+  display: block;
 }
 
 /***************************************/
 .selected {
   background : BurlyWood !important;
-  height : 100%;
+}
+
+ul.operateur, li.monome, .signe {
+  display: inline-block;
+  list-style-type : none; 
+  cursor: pointer;
+  text-align : center;
+  /*align-items: center;
+  align-content: center;
+  justify-content: center;*/
+  font-size: 30px; 
+  font-weight : bold;
+  margin:0px;
+  padding: 50px;
+  
 }
 
 .plus, .moins {
@@ -293,16 +276,36 @@ button.deleteButton {
   vertical-align: middle; 
 }
 
-li.monome {
-  display : inline-block;
-  list-style-type : none;
-  font-size: 2em; 
-  font-weight : bold;
-  cursor: pointer;
+.operateur > li:first-child > span > span.plus {
+  display : none;
 }
-ul > li.monome:first-child span.plus {
-	display:none;
+
+.addition::before  { content : '('; }
+.addition::after   { content : ')'; }
+
+.addition > ul:first-child::before   { content : '('; }
+
+.addition > ul::before   { content : '+('; }
+.addition > ul::after   { content : ')'; }
+
+.addition > li::before   { content : ''; }
+.addition > li::after   { content : ''; }
+
+
+.multiplication > li > span > span.plus {
+  display : none;
 }
+.multiplication::before  { content : '('; }
+.multiplication::after   { content : ')'; }
+
+.multiplication > ul:first-child::before { content : '('; }
+
+.multiplication > ul::before   { content : '.('; }
+.multiplication > ul::after   { content : ')'; }
+
+.multiplication > li::before   { content : '.'; }
+.multiplication > li:first-child::before   { content : ''; }
+.multiplication > li::after   { content : ''; }
 
 /* ==========================================================================
    Media Queries
