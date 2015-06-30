@@ -39,57 +39,14 @@
 
         <div class="main-container">
             <div class="main wrapper clearfix">
-                <div id="equations_div"></div>
-                
-                <div id="box" class="jxgbox" style="width:300px; height:300px;"></div>
-
-                <div id="equation_panel"> 
-                       
-                        <button id="generer_equation" title="générer une équation du premier degré">Générer</button>
-                        <button id="generer_equation_complexe" title="générer une équation du second degré">complexe</button>
-                        <button id="inserer_equation" title="Ajouter au système d'équation">Inserer</button>     
-                        
-                        <button id="plotter">Draw</button> <button id="eraser">clear</button> 
-                        
-                        <button class="selectAllButton" title="Sélectionner tous les termes de cette équation">Sélectionner tout</button>
-                        
-                        <button class="sommationMonome" title="Effectuer la somme des termes sélectionnés dans chaque membre">&Sigma;</button>
-                        <button class="simplifier_les_monomes" title="rendre les fractions des termes sélectionnés irréductibles">&frac12;</button>   
-                                       
-                        <input id="equation_string" type="text" size="70" value=""  readonly>
-                        <button id="effacer_equation_string" title="effacer">Effacer</button>
-                        <button id='var_&leftarrow;' class='panel_touch'>&leftarrow;</button>   
-
-                        <button class="ajouter" title="Ajouter un terme à chaque membre de cette équation">
-                           <span class="equation_string_sample">+</span>
-                        </button>
-                        <button class="retrancher" title="Retrancher un terme à chaque membre de cette équation">
-                            <span class="equation_string_sample">-</span>
-                        </button>
-                        <button class="multiplier_distribuer" title="Multiplier par un terme chaque membre de cette équation">
-                            <span class="equation_string_sample">*.*.</span>
-                        </button>
-                        <button class="multiplier_factoriser" title="Multiplier par un terme chaque membre de cette équation">
-                            <span class="equation_string_sample">*(..)</span>
-                        </button>        
-                        <button class="diviser"  title="Diviser par un terme chaque membre de cette équation">
-                          <span class="equation_string_sample">1/</span>
-                        </button>
-                        <button class="obtenirSolution"  title="Obtenir la solution de cette équation">?</button>
-                        <button class="copier"  title="Copier cette valeur">&#169;</button>
-                        <button class="coller"  title="Injecter la valeur">&#8618;</button>
-                         
-                </div>
-
-               
-                
                 <article id="help">
                     <header>
-                        <h1>Ekoarun</h1>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam sodales urna non odio egestas tempor. Nunc vel vehicula ante. Etiam bibendum iaculis libero, eget molestie nisl pharetra in. In semper consequat est, eu porta velit mollis nec.</p>
+                        <h1><button id="generer_equation_complexe" title="générer une équation du second degré">Générer une équation</button></h1>
                     </header>
                     <section>
-                         
+                          <div id="equations_div"></div>
+                
+                           <div id="box" class="jxgbox" style="visibility : hidden; width:300px; height:300px;"></div>
                     </section>
                     <section>
                         <h2>article section h2</h2>
@@ -103,7 +60,44 @@
 
                 <aside id="aside">
                     <h3>aside</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam sodales urna non odio egestas tempor. Nunc vel vehicula ante. Etiam bibendum iaculis libero, eget molestie nisl pharetra in. In semper consequat est, eu porta velit mollis nec. Curabitur posuere enim eget turpis feugiat tempor. Etiam ullamcorper lorem dapibus velit suscipit ultrices.</p>
+         
+                        <div id="equation_panel"> 
+                           
+                              <button id="generer_equation" title="générer une équation du premier degré">Générer</button>
+                              <button id="inserer_equation" title="Ajouter au système d'équation">Inserer</button>     
+                              
+                              <button id="plotter">Draw</button> <button id="eraser">clear</button> 
+                              
+                              <button class="selectAllButton" title="Sélectionner tous les termes de cette équation">Sélectionner tout</button>
+                              
+                              <button class="sommationMonome" title="Effectuer la somme des termes sélectionnés dans chaque membre">&Sigma;</button>
+                              <button class="simplifier_les_monomes" title="rendre les fractions des termes sélectionnés irréductibles">&frac12;</button>   
+                                             
+                              <input id="equation_string" type="text" size="70" value=""  readonly>
+                              <button id="effacer_equation_string" title="effacer">Effacer</button>
+                              <button id='var_&leftarrow;' class='panel_touch'>&leftarrow;</button>   
+
+                              <button class="ajouter" title="Ajouter un terme à chaque membre de cette équation">
+                                 <span class="equation_string_sample">+</span>
+                              </button>
+                              <button class="retrancher" title="Retrancher un terme à chaque membre de cette équation">
+                                  <span class="equation_string_sample">-</span>
+                              </button>
+                              <button class="multiplier_distribuer" title="Multiplier par un terme chaque membre de cette équation">
+                                  <span class="equation_string_sample">*.*.</span>
+                              </button>
+                              <button class="multiplier_factoriser" title="Multiplier par un terme chaque membre de cette équation">
+                                  <span class="equation_string_sample">*(..)</span>
+                              </button>        
+                              <button class="diviser"  title="Diviser par un terme chaque membre de cette équation">
+                                <span class="equation_string_sample">1/</span>
+                              </button>
+                              <button class="obtenirSolution"  title="Obtenir la solution de cette équation">?</button>
+                              <button class="copier"  title="Copier cette valeur">&#169;</button>
+                              <button class="coller"  title="Injecter la valeur">&#8618;</button>
+                               
+                      </div>
+                      
                 </aside>
 
             </div> <!-- #main -->

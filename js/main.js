@@ -307,18 +307,41 @@
       return _results;
     };
 
+    Operateur.prototype.toString = function() {
+      var s, string;
+      s = this.symbol;
+      string = "";
+      $(this.id).children().each(function() {
+        var m;
+        if ($(this).is("ul")) {
+          return string += "operateur";
+        } else {
+          m = new Monome($(this));
+          return string += "" + s + (m.toString());
+        }
+      });
+      return string.slice(1);
+    };
+
     return Operateur;
 
   })();
 
   megateuf = function() {
+    $("ul.operateur").each(function() {
+      if (($(this).children().length === 1) && ((!$(this).parent().hasClass("equation")) || ($(this).siblings().length > 0))) {
+        return $(this).contents().unwrap();
+      } else if ($(this).attr("data-symbol") === $(this).parent().attr("data-symbol")) {
+        return $(this).contents().unwrap();
+      }
+    });
     return $("ul.operateur").each(function() {
       var op;
       op = new Operateur("#" + ($(this).attr('id')));
       $("" + op.id + " > li.monome").droppable({
         accept: "" + op.id + " > li.monome",
-        hoverClass: "ui-state-hover",
-        activeClass: "ui-state-highlight",
+        hoverClass: "state-hover",
+        activeClass: "li-state-active",
         drop: function(event, ui) {
           var m1, m2;
           event.stopImmediatePropagation();
@@ -365,30 +388,34 @@
       });
       $("" + op.id + " > ul.operateur").droppable({
         accept: "" + op.id + " > li.monome, " + op.id + " > ul.operateur",
-        hoverClass: "ui-state-hover",
-        activeClass: "ui-state-highlight",
+        hoverClass: "state-hover",
+        activeClass: "ul-state-active",
         drop: function(event, ui) {
-          var m, m2, m3, op2, op3;
-          console.log("webeet");
+          var m, m2, m3, match2, match3, op2, op3, regex, str2, str3;
+          console.log("webeet1");
           op2 = new Operateur("#" + ($(this).attr('id')));
           if (ui.draggable.is("ul")) {
-            console.log("wop");
             op3 = new Operateur("#" + (ui.draggable.attr('id')));
-            console.log(op2.type, op2.id, op3.type, op3.id);
-            alert($(op2.id).html(), $(op3.id).html());
-            switch ($(op3.id).type) {
+            console.log("webeet2 : " + op3.type);
+            switch (op3.type) {
               case "multiplication":
-                m2 = new Monome($(op2.id).first("li"));
-                m3 = new Monome($(op3.id).first("li"));
-                $(op2.id).first("li").remove();
-                $(op3.id).first("li").remove();
-                if (op2 === op3) {
-                  alert("weewoot");
+                str2 = op2.toString();
+                str3 = op3.toString();
+                console.log("webeet3");
+                regex = /([+-]?\d+(?:\/\d+)?)[.](.*)/;
+                match2 = regex.exec(str2);
+                match3 = regex.exec(str3);
+                console.log("" + match2[2] + " is " + match3[2]);
+                if (match2.length === 3 && match2[2] === match3[2]) {
+                  console.log("webeet3");
+                  m2 = new Monome($(op2.id).children("li:first"));
+                  m3 = new Monome($(op3.id).children("li:first"));
+                  m2.fraction.ajouter(m3.fraction);
+                  $(op3.id).remove();
+                  m2.update();
                 }
-                alert($(op2.id).html(), $(op3.id).html());
             }
           } else {
-            console.log("webeet");
             m = new Monome(ui.draggable);
             op2 = new Operateur("#" + ($(this).attr('id')));
             switch (op.type) {
@@ -415,12 +442,7 @@
           return megateuf();
         }
       });
-      $("li.monome").draggable({
-        helper: "clone",
-        revert: true
-      });
-      return $("ul.operateur").draggable({
-        helper: "clone",
+      return $("ul.operateur, li.monome").draggable({
         revert: true
       });
     });
@@ -451,7 +473,7 @@
   };
 
   generate_equation = function(unknown, factor_length, depth, min, max) {
-    var alphabet, create_equation_membre, html, i, id, j, signe, _base, _i, _ref, _ref1, _ref2;
+    var alphabet, create_equation_membre, html, id, signe, _base, _ref;
     if (unknown == null) {
       unknown = 2;
     }
@@ -472,37 +494,40 @@
     html = "<div id='equation_" + id + "' class='equation' >\n    <button id='deleteButton_" + id + "' class='deleteButton' title='Supprimer cette équation'>x</button>    \n    <p id='solution_" + id + "'></p>\n    <ul id='fake' data-symbol=\"*\"></ul>\n    <span id='signe_" + id + "' class='signe'>" + signe + "</span>\n</div>";
     $("#equations_div").append(html);
     if ((_ref = (_base = Array.prototype).shuffle) == null) {
-      _base.shuffle = function() {};
+      _base.shuffle = function() {
+        var i, j, _i, _ref1, _ref2;
+        if (this.length > 1) {
+          for (i = _i = _ref1 = this.length - 1; _ref1 <= 1 ? _i <= 1 : _i >= 1; i = _ref1 <= 1 ? ++_i : --_i) {
+            j = Math.floor(Math.random() * (i + 1));
+            _ref2 = [this[j], this[i]], this[i] = _ref2[0], this[j] = _ref2[1];
+            return this;
+          }
+        }
+      };
     }
-    if (this.length > 1) {
-      for (i = _i = _ref1 = this.length - 1; _ref1 <= 1 ? _i <= 1 : _i >= 1; i = _ref1 <= 1 ? ++_i : --_i) {
-        j = Math.floor(Math.random() * (i + 1));
-        _ref2 = [this[j], this[i]], this[i] = _ref2[0], this[j] = _ref2[1];
-        return this;
-      }
-    }
-    alphabet = ['1', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+    alphabet = ['1', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'].slice(0, +unknown + 1 || 9e9).shuffle();
+    console.log(alphabet);
     create_equation_membre = function() {
-      var m, op, operateur, _j, _k;
+      var j, m, op, operateur, _i, _j;
       operateur = new Operateur("#fake", "+");
       $(operateur.id).append($("#fake"));
-      for (j = _j = 1; 1 <= factor_length ? _j <= factor_length : _j >= factor_length; j = 1 <= factor_length ? ++_j : --_j) {
+      for (j = _i = 1; 1 <= factor_length ? _i <= factor_length : _i >= factor_length; j = 1 <= factor_length ? ++_i : --_i) {
         op = new Operateur("#fake", "+");
-        for (j = _k = 1; 1 <= unknown ? _k <= unknown : _k >= unknown; j = 1 <= unknown ? ++_k : --_k) {
+        for (j = _j = 1; 1 <= unknown ? _j <= unknown : _j >= unknown; j = 1 <= unknown ? ++_j : --_j) {
           m = new Monome();
-          m.randomize(alphabet[j], 1);
+          m.randomize((alphabet.shuffle())[j], 1);
           m.insert(op.id);
         }
         $(operateur.id).append($("#fake"));
       }
       $("#fake").remove();
       return $(operateur.id).find("ul").each(function() {
-        var _l, _results;
+        var _k, _results;
         op = new Operateur("#" + ($(this).attr('id')), "*");
         _results = [];
-        for (j = _l = 1; 1 <= factor_length ? _l <= factor_length : _l >= factor_length; j = 1 <= factor_length ? ++_l : --_l) {
+        for (j = _k = 1; 1 <= factor_length ? _k <= factor_length : _k >= factor_length; j = 1 <= factor_length ? ++_k : --_k) {
           m = new Monome();
-          m.randomize(alphabet[j], 1);
+          m.randomize((alphabet.shuffle())[j], 1);
           _results.push(m.insert(op.id));
         }
         return _results;
@@ -621,10 +646,9 @@
       return generate_equation(2, 2, 2, -10, 10);
     });
     (once = function() {
-      $("#toggle_help").on("click", function() {
+      return $("#toggle_help").on("click", function() {
         return $("#help, #aside, #footer").toggle();
       });
-      return $("#help, #aside, #footer").toggle();
     })();
     $(".operateur").on("click", function() {
       if (($(this).children().length < 2) || ($(this).attr('data-symbol') === $(this).parent().attr('data-symbol'))) {
@@ -719,15 +743,6 @@
       }
       $("#equation_string").val(m.toString());
       return megateuf();
-    });
-    $('body').on("click", "ul", function(event) {
-      if (($(this).children().length === 1) && ($(this).children("ul").length === 1)) {
-        return $(this).contents().unwrap();
-      } else if (($(this).children().length === 1) && (!$(this).parent().hasClass("equation"))) {
-        return $(this).contents().unwrap();
-      } else if ($(this).attr("data-symbol") === $(this).parent().attr("data-symbol")) {
-        return $(this).contents().unwrap();
-      }
     });
     $('body').on("dblclick", "ul", function(event) {
       var index, op, symbols, _ref;

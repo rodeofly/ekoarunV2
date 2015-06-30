@@ -153,6 +153,16 @@ nav a:hover {
 /* ==========================================================================
    Author's custom styles
    ========================================================================== */
+.ul-state-active {
+  border : 2px dashed red;
+}
+.li-state-active {
+  border : 2px dashed orange;
+}
+.state-hover {
+  background-color : rgba(100,0,0,0.5);
+  border : 2px solid blue;
+}
 button.deleteButton {
   position : absolute;
   top : 0;
@@ -182,8 +192,7 @@ button.deleteButton {
   position: relative;
   vertical-align: top;
   right : 0%; top : 0%;
-  width: 90%; 
-  padding: 2em;
+  width: 100%;
 }
 
 #equation_string {
@@ -260,6 +269,7 @@ ul.operateur, li.monome, .signe {
   list-style-type : none; 
   cursor: pointer;
   text-align : center;
+   min-height: 30px;
   /*align-items: center;
   align-content: center;
   justify-content: center;*/
@@ -285,10 +295,10 @@ ul.operateur, li.monome, .signe {
 sup.power {
   font-size : 0.5em;
 }
-.operateur > li:first-child > span.plus {
+.operateur.multiplication > li:not(:first-child) > span.plus {
   display : none;
 }
-.operateur.multiplication > li > span.plus {
+.operateur.addition > li:first-child > span.plus {
   display : none;
 }
 
@@ -297,13 +307,13 @@ sup.power {
 
 .addition > ul:first-child::before   { content : '('; }
 
-.addition > ul::before   { content : '+ ('; }
-.addition > ul::after   { content : ')'; }
+.addition > ul::before   { content : '\00a0\00a0'; }
+.addition > ul::after   { content : ''; }
 
 .addition > li::before   { content : ''; }
 .addition > li::after   { content : ''; }
 
-
+/*
 .multiplication > li > span > span.plus {
   display : none;
 }
@@ -315,9 +325,15 @@ sup.power {
 .multiplication > ul::before   { content : '.('; }
 .multiplication > ul::after   { content : ')'; }
 
+
+*/
 .multiplication > li::before   { content : '.'; }
 .multiplication > li:first-child::before   { content : ''; }
+.multiplication > li:first-child span.plus {
+  display : none;
+}
 .multiplication > li::after   { content : ''; }
+
 
 .equation > ul::before   { content : ''; }
 .equation > ul::after   { content : ''; }
@@ -408,8 +424,8 @@ sup.power {
    =============== */
 
     .wrapper {
-        width: 1026px; /* 1140px - 10% for margins */
-        margin: 0 auto;
+        width: 90%; /* 1140px - 10% for margins */
+        margin: 0 5%;
     }
 }
 

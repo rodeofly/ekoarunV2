@@ -198,16 +198,34 @@ class Operateur
     for monomeString in membre
       (new Monome()).insert_from_string(@id, monomeString)
   
+  toString : () ->
+    s = @symbol 
+    string = ""
+    $( @id ).children().each ->
+      if $(this).is "ul"
+        string += "operateur"
+      else
+        m = new Monome $(this)
+        string += "#{s}#{m.toString()}"
+    return string[1..]
+  
 ###################################################################################################
 ###################################################################################################
 ###################################################################################################
 #Équation
-megateuf = () ->   
+megateuf = () ->
+  $( "ul.operateur" ).each -> 
+    if ( ($(this).children().length is 1) and ( ( not $(this).parent().hasClass("equation") ) or (  $(this).siblings().length > 0 ) ) ) # ((Operateur | li))
+      $(this).contents().unwrap()
+    else if ( $(this).attr("data-symbol") is $(this).parent().attr("data-symbol") ) #(+ (+) ) | (+ (+) )
+      $(this).contents().unwrap() 
+  
+
 
   $( "ul.operateur" ).each ->   
     op = new Operateur("##{$(this).attr('id')}")
         
-    $( "#{op.id} > li.monome" ).droppable accept : "#{op.id} > li.monome", hoverClass : "ui-state-hover", activeClass: "ui-state-highlight", drop: (event, ui) ->
+    $( "#{op.id} > li.monome" ).droppable accept : "#{op.id} > li.monome", hoverClass : "state-hover", activeClass: "li-state-active", drop: (event, ui) ->
       event.stopImmediatePropagation()
       console.log "woot"
       m1 = new Monome ui.draggable   
@@ -244,25 +262,31 @@ megateuf = () ->
             m1.update()         
       megateuf()
             
-    $( "#{op.id} > ul.operateur" ).droppable accept : "#{op.id} > li.monome, #{op.id} > ul.operateur", hoverClass : "ui-state-hover", activeClass: "ui-state-highlight", drop: (event, ui) ->
-      console.log "webeet"
+    $( "#{op.id} > ul.operateur" ).droppable accept : "#{op.id} > li.monome, #{op.id} > ul.operateur", hoverClass : "state-hover", activeClass: "ul-state-active", drop: (event, ui) ->
+      console.log "webeet1"
       op2 = new Operateur("##{$(this).attr('id')}")
       if ui.draggable.is "ul"
-        console.log "wop"
         op3 = new Operateur "##{ui.draggable.attr('id')}"
-        console.log op2.type, op2.id,  op3.type, op3.id
-        alert $(op2.id).html(), $(op3.id).html()
-        switch $( op3.id ).type
+        console.log "webeet2 : #{op3.type}"
+        switch op3.type
           when "multiplication"
-            m2 = new Monome $(op2.id).first( "li" )
-            m3 = new Monome $(op3.id).first( "li" )
-            $(op2.id).first( "li" ).remove()
-            $(op3.id).first( "li" ).remove()
-            if op2 is op3 then alert "weewoot"
-            alert $(op2.id).html(), $(op3.id).html()
+            
+            str2 = op2.toString()
+            str3 = op3.toString()
+            console.log "webeet3"
+            regex = /([+-]?\d+(?:\/\d+)?)[.](.*)/
+            match2 = regex.exec str2
+            match3 = regex.exec str3 
+            console.log "#{match2[2]} is #{match3[2]}"
+            if (match2.length is 3 and match2[2] is match3[2] )
+              console.log "webeet3"
+              m2 = new Monome $( op2.id ).children("li:first")
+              m3 = new Monome $( op3.id ).children("li:first")
+              m2.fraction.ajouter m3.fraction
+              $( op3.id ).remove()
+              m2.update()
             
       else
-        console.log "webeet"
         m = new Monome ui.draggable 
         op2 = new Operateur("##{$(this).attr('id')}")
         switch op.type
@@ -280,8 +304,7 @@ megateuf = () ->
               $( m.id ).remove()
       megateuf()   
     
-    $( "li.monome" ).draggable helper : "clone", revert : true
-    $( "ul.operateur" ).draggable helper : "clone", revert : true
+    $( "ul.operateur, li.monome" ).draggable revert : true
 generate_equation_string = (n, min = -10, max = 10) ->
   equation = {}
   equation["signe"] = signes[Math.floor Math.random() * signes.length]
@@ -310,13 +333,13 @@ generate_equation = (unknown=2, factor_length=2, depth=2, min = -10, max = 10) -
   #$("#equations_div" ).sortable()
    
   Array::shuffle ?= ->
-  if @length > 1 then for i in [@length-1..1]
-    j = Math.floor Math.random() * (i + 1)
-    [@[i], @[j]] = [@[j], @[i]]
-    return this
+    if @length > 1 then for i in [@length-1..1]
+      j = Math.floor Math.random() * (i + 1)
+      [@[i], @[j]] = [@[j], @[i]]
+      return this
     
-  alphabet = ['1', 'a','b','c','d','e','f','g','h','i','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
-
+  alphabet = (['1', 'a','b','c','d','e','f','g','h','i','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'][0..unknown]).shuffle()
+  console.log alphabet
   create_equation_membre = ->  
     (operateur = new Operateur("#fake", "+"))
     $( operateur.id ).append( $( "#fake" ) )  
@@ -324,7 +347,7 @@ generate_equation = (unknown=2, factor_length=2, depth=2, min = -10, max = 10) -
       op = new Operateur("#fake", "+")
       for j in [1..unknown]
         m = new Monome()
-        m.randomize(alphabet[j],1) 
+        m.randomize((alphabet.shuffle())[j],1) 
         m.insert op.id
       $( operateur.id ).append( $( "#fake" ) ) 
     $( "#fake" ).remove()
@@ -332,7 +355,7 @@ generate_equation = (unknown=2, factor_length=2, depth=2, min = -10, max = 10) -
       op = new Operateur("##{$(this).attr('id')}", "*")
       for j in [1..factor_length]
         m = new Monome()
-        m.randomize(alphabet[j],1) 
+        m.randomize((alphabet.shuffle())[j],1) 
         m.insert op.id
   
   create_equation_membre()  
@@ -403,7 +426,6 @@ $ ->
 # Init
   do once = () ->
     $( "#toggle_help" ).on "click", -> $( "#help, #aside, #footer" ).toggle()
-    $( "#help, #aside, #footer" ).toggle()
 ###################################################################################################
 ###################################################################################################
 ###################################################################################################  
@@ -480,13 +502,8 @@ $ ->
     megateuf()
   
   # selectionner un terme
-  $('body').on "click", "ul", (event) ->
-    if ( ($(this).children().length is 1) and ( $(this).children("ul").length is 1) )
-      $(this).contents().unwrap()
-    else if ( ($(this).children().length is 1) and ( not $(this).parent().hasClass("equation") ) )
-      $(this).contents().unwrap()
-    else if ( $(this).attr("data-symbol") is $(this).parent().attr("data-symbol") )
-      $(this).contents().unwrap()
+  #$('body').on "click", "ul", (event) ->
+    
   
   $('body').on "dblclick", "ul", (event) ->
     Array::unique = ->
