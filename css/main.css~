@@ -266,8 +266,15 @@ ul.operateur, li.monome, .signe {
   font-size: 30px; 
   font-weight : bold;
   margin:0px;
-  padding: 50px;
+  padding: 0px;
   
+}
+* {
+   -ms-user-select: none; /* IE 10+ */
+   -moz-user-select: -moz-none;
+   -khtml-user-select: none;
+   -webkit-user-select: none;
+   user-select: none;
 }
 
 .plus, .moins {
@@ -275,8 +282,13 @@ ul.operateur, li.monome, .signe {
   padding: 0px;
   vertical-align: middle; 
 }
-
-.operateur > li:first-child > span > span.plus {
+sup.power {
+  font-size : 0.5em;
+}
+.operateur > li:first-child > span.plus {
+  display : none;
+}
+.operateur.multiplication > li > span.plus {
   display : none;
 }
 
@@ -285,7 +297,7 @@ ul.operateur, li.monome, .signe {
 
 .addition > ul:first-child::before   { content : '('; }
 
-.addition > ul::before   { content : '+('; }
+.addition > ul::before   { content : '+ ('; }
 .addition > ul::after   { content : ')'; }
 
 .addition > li::before   { content : ''; }
@@ -307,6 +319,8 @@ ul.operateur, li.monome, .signe {
 .multiplication > li:first-child::before   { content : ''; }
 .multiplication > li::after   { content : ''; }
 
+.equation > ul::before   { content : ''; }
+.equation > ul::after   { content : ''; }
 /* ==========================================================================
    Media Queries
    ========================================================================== */
