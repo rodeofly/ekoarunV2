@@ -307,8 +307,8 @@ sup.power {
 
 .addition > ul:first-child::before   { content : '('; }
 
-.addition > ul::before   { content : '\00a0\00a0'; }
-.addition > ul::after   { content : ''; }
+.addition > ul::before   { content : '\00a0+\00a0('; }
+.addition > ul::after   { content : ')'; }
 
 .addition > li::before   { content : ''; }
 .addition > li::after   { content : ''; }
@@ -333,6 +333,9 @@ sup.power {
   display : none;
 }
 .multiplication > li::after   { content : ''; }
+
+.addition > multiplication::before   { content : ''; }
+.addition > multiplication::after   { content : ''; }
 
 
 .equation > ul::before   { content : ''; }
