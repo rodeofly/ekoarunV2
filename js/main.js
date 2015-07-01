@@ -314,7 +314,8 @@
 
   stringIdToString = function(stringId) {
     return stringId.replace(/(\#\d+)/g, function(match, id, offset, string) {
-      return get_monome(id).toString();
+      console.log($(id).id);
+      return get_monome($(id)).toString();
     });
   };
 
@@ -519,14 +520,17 @@
         hoverClass: "state-hover",
         activeClass: "ul-state-active",
         drop: function(event, ui) {
-          var m2, m3, match2, match3, op2, op3, str2, str3, _ref1, _ref2, _ref3;
+          var m2, m3, match2, match3, op2, op3, str2, str3, _ref1, _ref2;
           op2 = get_operateur($(this));
           if (ui.draggable.is("ul")) {
             op3 = get_operateur(ui.draggable);
-            _ref1 = [stringIdToString(op2.toStringId(), stringIdToString(op3.toStringId()))], str2 = _ref1[0], str3 = _ref1[1];
-            _ref2 = [/([-+]?\d+(?:\/\d+)?)[\.+](.*)/g.exec(str2), /([-+]?\d+(?:\/\d+)?)[\.+](.*)/g.exec(str3)], match2 = _ref2[0], match3 = _ref2[1];
+            str2 = stringIdToString(op2.toStringId());
+            str3 = stringIdToString(op3.toStringId());
+            _ref1 = [/([-+]?\d+(?:\/\d+)?)[\.+](.*)/g.exec(str2), /([-+]?\d+(?:\/\d+)?)[\.+](.*)/g.exec(str3)], match2 = _ref1[0], match3 = _ref1[1];
             if ((match2 != null) && (match3 != null) && (match2.length === 3) && (match3.length === 3) && (match2[2] === match3[2])) {
-              _ref3 = [get_monome($(op2.id).children("li:first")), get_monome($(op3.id).children("li:first"))], m2 = _ref3[0], m3 = _ref3[1];
+              console.log($(op2.id).children("li:first").attr('id'));
+              console.log($(op3.id).children("li:first").attr('id'));
+              _ref2 = [get_monome($(op2.id).children("li:first")), get_monome($(op3.id).children("li:first"))], m2 = _ref2[0], m3 = _ref2[1];
               m2.fraction.ajouter(m3.fraction);
               $(op3.id).remove();
               return m2.update();

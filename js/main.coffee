@@ -189,8 +189,10 @@ class Monome
 ###################################################################################################
 ###################################################################################################
 #Operateur
-stringIdToString = (stringId) ->  stringId.replace /(\#\d+)/g, (match, id, offset, string) ->
-  get_monome( id ).toString()
+stringIdToString = (stringId) ->
+  stringId.replace /(\#\d+)/g, (match, id, offset, string) ->
+    console.log $(id).id
+    get_monome( $(id) ).toString()
 
 get_operateur = ( $operateur ) ->
   if ( $operateur.is("[data-symbol]") and $operateur.is("[data-type]") and $operateur.is("[data-compacted]") )
@@ -335,10 +337,13 @@ megateuf = () ->
     $( "#{op.id}.addition > ul.multiplication" ).droppable accept : "#{op.id} > li.monome, #{op.id} > ul.multiplication", hoverClass : "state-hover", activeClass: "ul-state-active", drop: (event, ui) ->   
       op2 = get_operateur( $( this ) )
       if ui.draggable.is "ul"
-        op3 = get_operateur ui.draggable
-        [str2, str3 ] = [ stringIdToString op2.toStringId(), stringIdToString op3.toStringId() ]       
+        op3 = get_operateur( ui.draggable )
+        str2 = stringIdToString( op2.toStringId() ) 
+        str3 = stringIdToString( op3.toStringId() )    
         [match2, match3 ] = [/([-+]?\d+(?:\/\d+)?)[\.+](.*)/g.exec( str2 ), /([-+]?\d+(?:\/\d+)?)[\.+](.*)/g.exec( str3 ) ]
         if ( match2? and match3? and (match2.length is 3) and (match3.length is 3 ) and (match2[2] is match3[2]) )
+          console.log $( op2.id ).children("li:first").attr('id')
+          console.log $( op3.id ).children("li:first").attr('id')
           [ m2, m3 ] = [ get_monome( $( op2.id ).children("li:first") ), get_monome( $( op3.id ).children("li:first") ) ]
           m2.fraction.ajouter m3.fraction
           $( op3.id ).remove()
