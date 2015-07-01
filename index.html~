@@ -59,9 +59,18 @@
                 </article>
 
                 <aside id="aside">
-                    <h3>aside</h3>
-         
-                        <div id="equation_panel"> 
+                    <h3>aside</h3> 
+                        <div id="graph-settings">
+                            <div>nombre de variables : <span id="amount-variable"></span></div>
+                            <div id="slider-variable"></div>
+                            <div>nombre de facteur : <span id="amount-facteur"></span></div>
+                            <div id="slider-facteur"></div>
+                            <div>Grandeur des coefficients  : <span id="amount-minimax"></span></div>
+                            <div id="slider-minimax"></div>
+                        </div>
+                    
+                        <div id="equation_panel">
+                        
                            
                               <button id="generer_equation" title="générer une équation du premier degré">Générer</button>
                               <button id="inserer_equation" title="Ajouter au système d'équation">Inserer</button>     
