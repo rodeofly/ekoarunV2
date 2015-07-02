@@ -442,6 +442,8 @@ $ ->
     m = get_monome( $( this ) )
     op = get_operateur $( m.parent_id )
     
+    monome_irreductible $( m.id )
+    
     switch op.type # a quel operateur appartient ce monome ?
       when "addition"
         if m.fraction.numerateur is 0 # si c'est un zero mais que c'est le dernier on le garde sinon on l'enleve
@@ -464,23 +466,17 @@ $ ->
     $( "#equation_string").val m.toString() # Sinon on l'affiche dans la console
     megateuf()
   
-  #Simplifier les fractions selectionnées d'une équation
-  $( "body" ).on "dblclick", "li.monome", () -> monome_irreductible $(this)
-  
 ###################################################################################################
 ###################################################################################################
 ###################################################################################################
-# selectionner un operateur
-
-  $( "body" ).on "click", "ul.operateur", (event) ->
+# selectionner un operateur 
+  $( "body" ).on "click", "ul.operateur", ->
     event.stopPropagation()
     op = get_operateur( $( this ) )
-
-  $( "ul.operateur" ).on "click", ->
-    if (($(this).children().length < 2) or ($(this).attr('data-symbol') is $(this).parent().attr('data-symbol')) )
+    if (($( op.id ).children().length < 2) or ($( op.id ).attr('data-symbol') is $( op.parent_id).attr('data-symbol')) )
       $(this).unwrap() 
       
-  $( "body" ).on "dblclick", "ul.operateur.multiplication", (event) ->
+  $( "body" ).on "click", "ul.operateur.multiplication", (event) ->
     op = get_operateur( $( this ) )
     if $( "#{op.id} > ul.operateur" ).length is 0 #il n'y a que des monomes
       [index, symbols] = [{}, [] ]
@@ -503,7 +499,7 @@ $ ->
         m2.update()
         m1.remove()
 
-  $( "body" ).on "dblclick", "ul.operateur.addition", (event) ->
+  $( "body" ).on "click", "ul.operateur.addition", (event) ->
     op = get_operateur( $( this ) )
     if $( "#{op.id} > ul.operateur" ).length is 0 #il n'y a que des monomes
       coeffs = {}

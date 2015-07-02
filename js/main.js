@@ -692,6 +692,7 @@
       event.stopPropagation();
       m = get_monome($(this));
       op = get_operateur($(m.parent_id));
+      monome_irreductible($(m.id));
       switch (op.type) {
         case "addition":
           if (m.fraction.numerateur === 0) {
@@ -728,20 +729,15 @@
       $("#equation_string").val(m.toString());
       return megateuf();
     });
-    $("body").on("dblclick", "li.monome", function() {
-      return monome_irreductible($(this));
-    });
-    $("body").on("click", "ul.operateur", function(event) {
+    $("body").on("click", "ul.operateur", function() {
       var op;
       event.stopPropagation();
-      return op = get_operateur($(this));
-    });
-    $("ul.operateur").on("click", function() {
-      if (($(this).children().length < 2) || ($(this).attr('data-symbol') === $(this).parent().attr('data-symbol'))) {
+      op = get_operateur($(this));
+      if (($(op.id).children().length < 2) || ($(op.id).attr('data-symbol') === $(op.parent_id).attr('data-symbol'))) {
         return $(this).unwrap();
       }
     });
-    $("body").on("dblclick", "ul.operateur.multiplication", function(event) {
+    $("body").on("click", "ul.operateur.multiplication", function(event) {
       var index, m1, m2, op, symbols, _ref1, _ref2;
       op = get_operateur($(this));
       if ($("" + op.id + " > ul.operateur").length === 0) {
@@ -772,7 +768,7 @@
         }
       }
     });
-    return $("body").on("dblclick", "ul.operateur.addition", function(event) {
+    return $("body").on("click", "ul.operateur.addition", function(event) {
       var coeffs, fraction, m, op, symbol, _results;
       op = get_operateur($(this));
       if ($("" + op.id + " > ul.operateur").length === 0) {
