@@ -20,24 +20,12 @@ liste_des_signes =     ['=','<','>','≤','≥']
 changementSens = { '=': '=', '<': '>', '>': '<', '≤': '≥', '≥': '≤' }
 amount_variable = 1
 amount_facteur = 2
-amount_minimax = 2
+amount_minimax_min = 1
+amount_minimax_max = 10
 ###################################################################################################
 ###################################################################################################
 ###################################################################################################
 # Fraction
-fracString_to_frac = (value) ->
-  #console.log "fracString_to_frac(#{value}) starts !" 
-  foo = value.split("/")
-  switch foo.length
-    when 2
-      [n,d] = [parseInt(foo[0]), parseInt(foo[1])]
-      if n? and d? then foo = new Fraction( n,d) else alert "Erreur : fracString_to_frac, n is #{n} and d is #{d} !"
-    when 1
-      n = parseInt(foo[0])
-      if n? then foo = new Fraction(n,1) else alert "Erreur : fracString_to_frac, n is #{n} !"
-    else
-      alert "Erreur : fracString_to_frac, value is #{value} !"
-
 class Fraction
   constructor: (@numerateur, @denominateur) ->
   
@@ -86,32 +74,23 @@ class Fraction
     [@numerateur, @denominateur] = [@numerateur * fraction.numerateur, @denominateur * fraction.denominateur]
     return this
 
+fracString_to_frac = (value) ->
+  #console.log "fracString_to_frac(#{value}) starts !" 
+  foo = value.split("/")
+  switch foo.length
+    when 2
+      [n,d] = [parseInt(foo[0]), parseInt(foo[1])]
+      if n? and d? then foo = new Fraction( n,d) else alert "Erreur : fracString_to_frac, n is #{n} and d is #{d} !"
+    when 1
+      n = parseInt(foo[0])
+      if n? then foo = new Fraction(n,1) else alert "Erreur : fracString_to_frac, n is #{n} !"
+    else
+      alert "Erreur : fracString_to_frac, value is #{value} !"
+
 ###################################################################################################
 ###################################################################################################
 ################################################################################################### 
 # Monomes
-monomeString_to_array = (s) ->
-  console.log "monomeString_to_array(#{s})" if debug
-  pattern_terme = /([\+\-]?\d+(?:\/\d+)*)[.+](\w+)\^(\d+)*/g
-  foo = s.match(pattern_terme)
-  if (foo? and foo[0] is s)
-    foo = regex.exec pattern_terme
-    fracString = foo[1]
-    symbol = foo[2]
-    power = foo[3]
-  else
-    alert "Vous devriez effacer l'invite de commande et envisager quelquechose de mieux pondéré...ok !?"
-
-get_monome = ($monome) ->
-  if ( $monome.is("[data-fraction]") and $monome.is("[data-symbol]") and $monome.is("[data-power]") )
-    m = new Monome()
-    m.id = "##{$monome.attr('id')}"
-    m.parent_id = "##{$( m.id ).parent().attr('id')}"
-    m.fraction = fracString_to_frac $( m.id ).attr("data-fraction")
-    m.symbol = $( m.id ).attr("data-symbol")
-    m.power = parseInt( $( m.id ).attr("data-power") )
-    return m
-  else alert "get_monome did not work !"
     
 class Monome
   constructor: (@fraction, @symbol, @power) ->
@@ -130,8 +109,9 @@ class Monome
     return m
      
   randomize: (@symbol, @power) ->
-    min = -amount_minimax
-    coeff = Math.floor(Math.random() * (amount_minimax-min+1)) + min
+    min = -10
+    max = 10
+    coeff = Math.floor(Math.random() * (max-min+1)) + min
     @fraction = new Fraction(coeff,1)
     return this
 
@@ -183,27 +163,35 @@ class Monome
   
   toHtml: () ->
     html = "<li id='#{@id[1..]}' class='monome item' data-fraction='#{@fraction.toString()}' data-symbol='#{@symbol}' data-power='#{@power}'><span class='monome_html'>#{this.html_content()}</span></li>"
-  
 
+monome_irreductible = ($monome) -> (m = get_monome($monome)).irreductible()
+  
+monomeString_to_array = (s) ->
+  console.log "monomeString_to_array(#{s})" if debug
+  pattern_terme = /([\+\-]?\d+(?:\/\d+)*)[.+](\w+)\^(\d+)*/g
+  foo = s.match(pattern_terme)
+  if (foo? and foo[0] is s)
+    foo = regex.exec pattern_terme
+    fracString = foo[1]
+    symbol = foo[2]
+    power = foo[3]
+  else
+    alert "Vous devriez effacer l'invite de commande et envisager quelquechose de mieux pondéré...ok !?"
+
+get_monome = ($monome) ->
+  if ( $monome.is("[data-fraction]") and $monome.is("[data-symbol]") and $monome.is("[data-power]") )
+    m = new Monome()
+    m.id = "##{$monome.attr('id')}"
+    m.parent_id = "##{$( m.id ).parent().attr('id')}"
+    m.fraction = fracString_to_frac $( m.id ).attr("data-fraction")
+    m.symbol = $( m.id ).attr("data-symbol")
+    m.power = parseInt( $( m.id ).attr("data-power") )
+    return m
+  else alert "get_monome did not work !"
 ###################################################################################################
 ###################################################################################################
 ###################################################################################################
 #Operateur
-stringIdToString = (stringId) ->
-  stringId.replace /(\#\d+)/g, (match, id, offset, string) ->
-    console.log $(id).id
-    get_monome( $(id) ).toString()
-
-get_operateur = ( $operateur ) ->
-  if ( $operateur.is("[data-symbol]") and $operateur.is("[data-type]") and $operateur.is("[data-compacted]") )
-    o = new Operateur()
-    o.id        = "##{$operateur.attr('id')}"
-    o.parent_id = "##{$( o.id ).parent().attr('id')}"
-    o.type      = $( o.id ).attr( "data-type" )
-    o.symbol    = $( o.id ).attr( "data-symbol" )
-    o.compacted = $( o.id ).attr( "data-compacted" )
-    return o
-  else alert "get_operateur did not work !"
      
 class Operateur
   constructor: (@symbol, @compacted) ->
@@ -240,7 +228,21 @@ class Operateur
         string += "#{symbol}#{m.id}"
     return string[1..]
     
-  
+stringIdToString = (stringId) ->
+  stringId.replace /(\#\d+)/g, (match, id, offset, string) ->
+    console.log $(id).id
+    get_monome( $(id) ).toString()
+
+get_operateur = ( $operateur ) ->
+  if ( $operateur.is("[data-symbol]") and $operateur.is("[data-type]") and $operateur.is("[data-compacted]") )
+    o = new Operateur()
+    o.id        = "##{$operateur.attr('id')}"
+    o.parent_id = "##{$( o.id ).parent().attr('id')}"
+    o.type      = $( o.id ).attr( "data-type" )
+    o.symbol    = $( o.id ).attr( "data-symbol" )
+    o.compacted = $( o.id ).attr( "data-compacted" )
+    return o
+  else alert "get_operateur did not work !" 
 ###################################################################################################
 ###################################################################################################
 ###################################################################################################
@@ -251,8 +253,6 @@ megateuf = () ->
       $(this).contents().unwrap()
     else if ( $(this).attr("data-symbol") is $(this).parent().attr("data-symbol") ) #(+ (+) ) | (+ (+) )
       $(this).contents().unwrap() 
-  
-
 
   $( "ul.operateur" ).each ->   
     op = get_operateur( $(this) )
@@ -293,8 +293,7 @@ megateuf = () ->
             m2.update()
             m1.update()         
       megateuf()
-    
-           
+             
     $( "#{op.id}.multiplication > ul.addition" ).droppable accept : "#{op.id} > li.monome, #{op.id} > ul.operateur", hoverClass : "state-hover", activeClass: "ul-state-active", drop: (event, ui) ->
       op2 = get_operateur( $( this ) )
       if ui.draggable.is "ul"  # Distribution d'un facteur sur une addition
@@ -310,13 +309,10 @@ megateuf = () ->
               clone = new Operateur( op3.symbol ) 
               $( this ).after clone.toHtml()
               $( clone.id ).html( $( op3.id ).html() )
-              $( clone.id ).find('[id]').each -> $( this ).attr("id", "#{unique_id++}" )
-              
+              $( clone.id ).find('[id]').each -> $( this ).attr("id", "#{unique_id++}" )       
         $( op3.id ).remove()
-              
-      
-
       else
+      
         m = get_monome( ui.draggable )
         switch op.type
           when op2.type then $( op2.id ).append $( m.id )
@@ -327,7 +323,7 @@ megateuf = () ->
             m.clone().insert( op3.id ) if op2.type is "multiplication"
           when "multiplication"
             console.log( "waaot" )
-            $( op2.id ).children( "ul, li" ).each -> 
+            $( op2.id ).children( "ul.operateur , li.monome" ).each -> 
               op3 = new Operateur( "*" ) 
               $( this ).wrap op3.toHtml()
               m.clone().insert( op3.id ) if op2.type is "addition"
@@ -336,10 +332,10 @@ megateuf = () ->
       
     $( "#{op.id}.addition > ul.multiplication" ).droppable accept : "#{op.id} > li.monome, #{op.id} > ul.multiplication", hoverClass : "state-hover", activeClass: "ul-state-active", drop: (event, ui) ->   
       op2 = get_operateur( $( this ) )
-      if ui.draggable.is "ul"
+      if ui.draggable.is "ul.operateur"
         op3 = get_operateur( ui.draggable )
         str2 = stringIdToString( op2.toStringId() ) 
-        str3 = stringIdToString( op3.toStringId() ) ]       
+        str3 = stringIdToString( op3.toStringId() )    
         [match2, match3 ] = [/([-+]?\d+(?:\/\d+)?)[\.+](.*)/g.exec( str2 ), /([-+]?\d+(?:\/\d+)?)[\.+](.*)/g.exec( str3 ) ]
         if ( match2? and match3? and (match2.length is 3) and (match3.length is 3 ) and (match2[2] is match3[2]) )
           console.log $( op2.id ).children("li:first").attr('id')
@@ -347,24 +343,10 @@ megateuf = () ->
           [ m2, m3 ] = [ get_monome( $( op2.id ).children("li:first") ), get_monome( $( op3.id ).children("li:first") ) ]
           m2.fraction.ajouter m3.fraction
           $( op3.id ).remove()
-          m2.update()
-          
-  #$( ".equation > ul.operateur" ).droppable accept : ".equation > ul.operateur > ul.operateur", hoverClass : "state-hover", activeClass: "ul-state-active", drop: (event, ui) ->
-  #$( ".equation > ul.multiplication" ).droppable accept : ".equation > ul.operateur", hoverClass : "state-hover", activeClass: "ul-state-active", drop: (event, ui) ->
-    
-      
+          m2.update()    
+    #$( ".equation > ul.operateur" ).droppable accept : ".equation > ul.operateur > ul.operateur", hoverClass : "state-hover", activeClass: "ul-state-active", drop: (event, ui) ->
+    #$( ".equation > ul.multiplication" ).droppable accept : ".equation > ul.operateur", hoverClass : "state-hover", activeClass: "ul-state-active", drop: (event, ui) ->  
     $( "ul.operateur, li.monome" ).draggable revert : true
-generate_equation_string = (n, min = -10, max = 10) ->
-  equation = {}
-  equation["signe"] = signes[Math.floor Math.random() * signes.length]
-  for side in ["gauche", "droite"]
-    str= ""
-    for [1..n]
-      coeff = Math.floor(Math.random() * (max-min+1)) + min
-      toss = Math.floor(Math.random() * (2)) - 1
-      str += if toss is 0 then "+(#{coeff})1" else "+(#{coeff})x "
-    equation[side] = str[1..] 
-  equation = "#{equation['gauche']} #{equation['signe']} #{equation['droite']}"
   
 generate_equation = () ->
   id = unique_id++
@@ -372,43 +354,37 @@ generate_equation = () ->
   html =
   """
   <div id='equation_#{id}' class='equation' >
-       
-      <p id='solution_#{id}'></p>
-
+      <a href='#' id='deleteButton_#{id}' class="deleteButton ui-btn ui-corner-all ui-icon-delete ui-btn-icon-notext ui-btn-inline">title=Supprimer cette équation</a>
       <span id='signe_#{id}' class='signe'>#{signe}</span>
-
-      <button id='deleteButton_#{id}' class='deleteButton' title='Supprimer cette équation'>x</button>   
   </div>
   """
   $( "#equations_div" ).append html
   #$("#equations_div" ).sortable()
-  alphabet = (['1', 'a','b','c','d','e','f','g','h','i','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'][0..amount_variable])
-  console.log alphabet
-  create_equation_membre = ( place ) ->  
-    op1 = new Operateur( "+" )
-    if place is "before"
-      $( "#signe_#{id}" ).before( op1.toHtml() )
-    else
-      $( "#signe_#{id}" ).after( op1.toHtml() )
-      
-    for i in [1..amount_facteur]
-      op2 = (new Operateur "*" )
+  alphabet = (['1', 'a','b','c','d','e','f','g','h','i','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'][0..parseInt $( "#slider-variable" ).val()])
+  create_equation_membre = ( type, place ) ->
+    other = {"+" : "*", "*" : "+"} 
+    
+    op1 = new Operateur( other[type] )
+    if place is "before" then  $( "#signe_#{id}" ).before(op1.toHtml()) else $( "#signe_#{id}" ).after(op1.toHtml())
+    console.log $("#operateur_type :radio:checked").val(), type, op1
+    for i in [1..parseInt $( "#slider-facteur" ).val()]
+      op2 = (new Operateur type )
       $( op1.id ).append( op2.toHtml() )
-      for j in [1..amount_minimax]
-        op3 = new Operateur( "+" )
+      for j in [1..parseInt $( "#rangeslider-minimax-max" ).val()]
+        op3 = new Operateur( other[type] )
         $( op2.id ).append( op3.toHtml() )
         for k in alphabet
           m = new Monome()
           m.randomize( k ,1).insert( op3.id )
           
-  create_equation_membre("before")  
-  create_equation_membre("after")  
+  create_equation_membre( $("#operateur_type :radio:checked").val(), "before" ) 
+  create_equation_membre( $("#operateur_type :radio:checked").val(), "after" )  
   megateuf()
 
 ajouter_membre = (string) ->
   id = get_focused_id()
   if (id )
-    $( "#equation_#{id} > .operateur" ).each ->  
+    $( "#equation_#{id} > ul.operateur" ).each ->  
       op = new Operateur( "+")
       $(this).append( op.toHtml() )
       op.monomesString_insert( string )
@@ -416,7 +392,7 @@ ajouter_membre = (string) ->
 multiplier_distribuer_membre = (facteur) ->
   id = get_focused_id()
   if (id and facteur.denominateur)
-    $( "#equation_#{id} > ul > li.monome").each ->
+    $( "#equation_#{id} > ul.operateur > li.monome").each ->
       m = get_monome( $( this ) )
       m.fraction.multiplier facteur
       m.update()
@@ -452,32 +428,16 @@ $ ->
 ###################################################################################################
 # Init
   do once = () ->
-    $( "#toggle_help" ).on "click", -> $( "#help, #aside, #footer" ).toggle()
-###################################################################################################
-###################################################################################################
-###################################################################################################  
-  $( ".operateur" ).on "click", ->
-    if (($(this).children().length < 2) or ($(this).attr('data-symbol') is $(this).parent().attr('data-symbol')) )
-      $(this).unwrap() 
-  $( "#generer_equation" ).on "click", -> $( "#equation_string" ).val generate_equation_string Math.floor(10*Math.random())+1
-  
- 
-         
+    $( "#toggle_help" ).on "click", -> $( "#help, #aside" ).toggle()
+    $( "#help, #aside" ).toggle()
+    $( "#generer_equation" ).on "click", -> $( "#equation_string" ).val generate_equation_string Math.floor(10*Math.random())+1
+    $( "body" ).on "click", ".deleteButton",          () -> $( this ).parent().hide 'easeInElastic', -> $( this ).remove()
 
-  # effacer l'invite _ commande
-  $("#effacer_equation_string").on "click", ->  $( "#equation_string" ).val( "" )
-  
-  # selectionner tous les termes d'une equation
-  $( "body" ).on "click", ".selectAllButton", (event) ->
-    $("#equation_#{id}.focus ul > .monome").addClass( "selected" ) if id = get_focused_id()
-  
-  #Simplifier les fractions selectionnées d'une équation
-  monome_irreductible = ($monome) -> (m = get_monome($monome)).irreductible()
-  $( "body" ).on "dblclick", ".monome", () -> monome_irreductible $(this)
-  $( "body" ).on "click", ".simplifier_les_monomes", () -> if id = get_focused_id() then $( "#equation_#{id} > ul > li.selected" ).each -> monome_irreductible $(this)
-   
-  # selectionner un terme
-  $('body').on "click", "li", (event) ->
+###################################################################################################
+###################################################################################################
+###################################################################################################
+# selectionner un terme
+  $( "body" ).on "click", "li.monome", (event) ->
     event.stopPropagation()
     m = get_monome( $( this ) )
     op = get_operateur $( m.parent_id )
@@ -504,14 +464,23 @@ $ ->
     $( "#equation_string").val m.toString() # Sinon on l'affiche dans la console
     megateuf()
   
-  # selectionner un terme
-  $('body').on "click", "ul", (event) ->
+  #Simplifier les fractions selectionnées d'une équation
+  $( "body" ).on "dblclick", "li.monome", () -> monome_irreductible $(this)
+  
+###################################################################################################
+###################################################################################################
+###################################################################################################
+# selectionner un operateur
+
+  $( "body" ).on "click", "ul.operateur", (event) ->
     event.stopPropagation()
     op = get_operateur( $( this ) )
-    $( "#equation_string").val op.toStringId()
-    
-  
-  $('body').on "dblclick", "ul.operateur.multiplication", (event) ->
+
+  $( "ul.operateur" ).on "click", ->
+    if (($(this).children().length < 2) or ($(this).attr('data-symbol') is $(this).parent().attr('data-symbol')) )
+      $(this).unwrap() 
+      
+  $( "body" ).on "dblclick", "ul.operateur.multiplication", (event) ->
     op = get_operateur( $( this ) )
     if $( "#{op.id} > ul.operateur" ).length is 0 #il n'y a que des monomes
       [index, symbols] = [{}, [] ]
@@ -534,7 +503,7 @@ $ ->
         m2.update()
         m1.remove()
 
-  $('body').on "dblclick", "ul.operateur.addition", (event) ->
+  $( "body" ).on "dblclick", "ul.operateur.addition", (event) ->
     op = get_operateur( $( this ) )
     if $( "#{op.id} > ul.operateur" ).length is 0 #il n'y a que des monomes
       coeffs = {}
@@ -552,102 +521,5 @@ $ ->
 ###################################################################################################
 ###################################################################################################
 ###################################################################################################
-# Le petit panel tactile    
-  for char in  liste_des_variables.concat liste_des_operateurs.concat ["/"].concat liste_des_signes
-    $("#equation_panel").append("<button id='var_#{char}' class='panel_touch'>#{char}</button>")
-  #$("#equation_panel").append("<br>")
-  for char in liste_des_chiffres
-    $("#equation_panel").append("<button id='var_#{char}' class='panel_touch'>#{char}</button>")
-  $( "button" ).button()
-  
-  $( "body" ).on "click", ".deleteButton",          () -> $( this ).parent().hide 'easeInElastic', -> $( this ).remove()
-  $( "body" ).on "click", ".multiplier_distribuer", () -> operation_sur_equation( "multiplier_distribuer" )   
-  $( "body" ).on "click", ".multiplier_factoriser", () -> operation_sur_equation( "multiplier_factoriser" )   
-  $( "body" ).on "click", ".diviser",               () -> operation_sur_equation( "diviser" )
-  $( "body" ).on "click", ".ajouter",               () -> operation_sur_equation( "ajouter" )
-  $( "body" ).on "click", ".retrancher",            () -> operation_sur_equation( "retrancher" )
-  $( "body" ).on "click", ".equation",              () ->
-    $( ".focus" ).toggleClass("focus")
-    $( this ).toggleClass("focus") 
-  
-  $('body').on "click", ".panel_touch", () ->
-    [char, saisie ] = [$( this ).attr( "id" ).split("_")[1], $( "#equation_string" ).val() ]
-    caractere_precedent = if (saisie.length > 0) then saisie.slice(-1) else ''       
-    if char is '←'
-      saisie = if saisie.length < 2 then "" else saisie[0..(saisie.length-2)]
-    else
-      if caractere_precedent is ''
-        if char in liste_des_operateurs     then saisie += (if (char is '-') then "(-" else "(" )
-        else if char in liste_des_chiffres  then saisie += "(#{char}"
-        else if char in liste_des_variables then saisie += "(1)#{char}"
-        else if char in liste_des_signes    then alert "il faut un membre à gauche !"
-        else if char is '/'                 then alert "Impossible de commencer par ça !"
-      
-      else if caractere_precedent in liste_des_operateurs or caractere_precedent is '('
-        if char in liste_des_operateurs
-          if caractere_precedent isnt '-'   then saisie += (if char is '-' then "#{char}" else alert "Deux opérateurs d'affilés ?")
-          else alert "Deux fois le même opérateur ?"
-        else if char in liste_des_chiffres  then saisie += "#{char}"
-        else if char in liste_des_variables then saisie += "1)#{char}"
-        else if char in liste_des_signes    then alert "Effacer le dernier signe !"
-        else if char is '/'                 then alert "Impossible d'ecrire #{caractere_precedent}#{char} !"
-      
-      else if caractere_precedent in liste_des_chiffres
-        if char in liste_des_operateurs     then saisie += (if char is '-' then ")+(-" else ")#{char}(")
-        else if char in liste_des_chiffres  then saisie += "#{char}"
-        else if char in liste_des_variables then saisie += ")#{char}"
-        else if char in liste_des_signes    then saisie += ")#{char}"
-        else if char is '/' then saisie += "#{char}"
-      
-      else if caractere_precedent in liste_des_variables
-        if char in liste_des_operateurs     then saisie += (if char is '-' then "+(-" else "#{char}(")
-        else if char in liste_des_chiffres  then alert "Les coefficients se placent devant les variables !"
-        else if char in liste_des_variables then saisie += "#{char}"
-        else if char in liste_des_signes    then saisie += "#{char}"
-        else if char is '/'                 then alert "Impossible d'ecrire #{caractere_precedent}#{char} !"
-      
-      else if caractere_precedent in liste_des_signes
-        if char in liste_des_operateurs     then saisie += (if char is '-' then "(-" else "(")
-        else if char in liste_des_chiffres  then saisie += "(#{char}"
-        else if char in liste_des_variables then saisie += "(1)#{char}"
-        else if char in liste_des_signes    then alert "_ux signes d'affilés"
-        else if char is '/'                 then alert "Impossible d'ecrire #{caractere_precedent}#{char} !"  
-      
-      else if caractere_precedent is '/'
-        if char in liste_des_operateurs     then alert "Impossible d'ecrire #{caractere_precedent}#{char} !"
-        else if char in liste_des_chiffres  then saisie += "#{char}"
-        else if char in liste_des_variables then alert "Et la fraction ?" 
-        else if char in liste_des_signes    then alert "Et la fraction ?"
-        else if char is '/'                 then alert "Ca y est déjà !"
-      else
-        saisie += "#{char}"
-    $( "#equation_string" ).val(saisie)
-   
-   
-  $( "#slider-variable" ).slider
-    range: "max"
-    min   : 0 
-    max   : 10
-    step  : 1
-    value : amount_variable
-    slide : ( event, ui ) -> $( "#amount-variable" ).html( amount_variable = ui.value )
-  $( "#amount-variable" ).html(amount_variable)
-  
-  $( "#slider-facteur" ).slider
-    range: "max"
-    min   : 1
-    max   : 10
-    step  : 1
-    value : amount_facteur
-    slide : ( event, ui ) -> $( "#amount-facteur" ).html( amount_facteur = ui.value )
-  $( "#amount-facteur" ).html(amount_facteur)
-  
-  $( "#slider-minimax" ).slider
-    range: "max"
-    min   : 1
-    max   : 5
-    step  : 1
-    value : amount_minimax
-    slide : ( event, ui ) -> $( "#amount-minimax" ).html( amount_minimax = ui.value )
-  $( "#amount-minimax" ).html(amount_minimax)
+
     

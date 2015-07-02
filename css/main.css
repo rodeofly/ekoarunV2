@@ -153,95 +153,6 @@ nav a:hover {
 /* ==========================================================================
    Author's custom styles
    ========================================================================== */
-.ul-state-active {
-  border : 2px dashed red;
-}
-.li-state-active {
-  border : 2px dashed orange;
-}
-.state-hover {
-  background-color : rgba(100,0,0,0.5);
-  border : 2px solid blue;
-}
-button.deleteButton {
-  position : absolute;
-  top : 0;
-  left : 0;
- 
-}
-
-.equation_string_sample::after {
-  content: attr(data-equation);
-}
-
-.equation {
-  position : relative;
-  padding-top : -3em;
-  background:moccasin;
-  vertical-align : middle;
-  color : black;
-  text-align : center;
-}
-.focus {
-  outline: none;
-  border-color: #9ecaed;
-  box-shadow: 0 0 10px #9ecaed;
-}
-
-#equation_panel {
-  position: relative;
-  vertical-align: top;
-  right : 0%; top : 0%;
-  width: 100%;
-}
-
-#equation_string {
-  color : blue;
-  width : 100%;
-}
-  
-#equation_operator {
-  margin-bottom : 1em;
-}
-
-
-.jxgbox {
-    position : fixed !important;
-    top : 33%;
-    left : 5%;
-    display : inline-block;
-
-    overflow: hidden;
-    background-color: #ffffff;
-    border-style: solid;
-    border-width: 1px;
-    border-color: #356AA0;
-    border-radius: 10px;
-    -webkit-border-radius: 10px;
-    -ms-touch-action: none;
-}
-
-.JXGtext {
-    /* May produce artefacts in IE. Solution: setting a color explicitly. */
-    background-color: transparent;
-    font-family: Arial, Helvetica, Geneva, sans-serif;
-    padding: 0;
-    margin: 0;
-}
-
-.JXGinfobox {
-    border-style: none;
-    border-width: 1px;
-    border-color: black;
-}
-
-.JXGimage {
-    opacity: 0;
-}
-
-.JXGimageHighlight {
-    opacity: 0;
-}
 
 /**************fraction*************************/
 .fraction, .top, .bottom {
@@ -288,6 +199,32 @@ ul.operateur, li.monome, .signe {
    user-select: none;
 }
 
+.equation {
+  position : relative;
+  padding : 1em;
+  margin : 1em;
+  background:moccasin;
+  vertical-align : middle;
+  color : black;
+  text-align : center;
+}
+.focus {
+  outline: none;
+  border-color: #9ecaed;
+  box-shadow: 0 0 10px #9ecaed;
+}
+
+.ul-state-active {
+  border : 2px dashed red;
+}
+.li-state-active {
+  border : 2px dashed orange;
+}
+.state-hover {
+  background-color : rgba(100,0,0,0.5);
+  border : 2px solid blue;
+}
+
 .plus, .moins {
   margin : 0px 10px 0px 10px;
   padding: 0px;
@@ -314,20 +251,6 @@ sup.power {
 .addition > li::before   { content : ''; }
 .addition > li::after   { content : ''; }
 
-/*
-.multiplication > li > span > span.plus {
-  display : none;
-}
-.multiplication::before  { content : '('; }
-.multiplication::after   { content : ')'; }
-
-.multiplication > ul:first-child::before { content : '('; }
-
-.multiplication > ul::before   { content : '.('; }
-.multiplication > ul::after   { content : ')'; }
-
-
-*/
 .multiplication > li::before   { content : '.'; }
 .multiplication > li:first-child::before   { content : ''; }
 .multiplication > li:first-child span.plus {

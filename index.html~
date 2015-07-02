@@ -12,8 +12,10 @@
         <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
         <link rel="stylesheet" href="css/normalize.min.css">
-        <link rel="stylesheet" href="css/main.css">
         <link rel="stylesheet" href="css/jquery-ui.min.css">
+        <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.css">
+        <link rel="stylesheet" href="css/main.css">
+        
         <script src="js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
         
         <script type="text/javascript" src="http://jsxgraph.uni-bayreuth.de/distrib/jsxgraphcore.js"></script>
@@ -29,9 +31,7 @@
                 <h1 class="title">Ekoarun 2.0</h1>
                 <nav>
                     <ul>
-                        <li><button id="toggle_help" href="#">?</button></li>
-                        <li> <button id="toggle-box" >on/off graph</button></li>
-                        <li><button href="#">Hello !</button></li>
+                        <li><a id="toggle_help" href="#" class="ui-btn ui-btn-inline ui-icon-gear ui-corner-all ui-btn-icon-notext">?</a></li>
                     </ul>
                 </nav>
             </header>
@@ -39,71 +39,58 @@
 
         <div class="main-container">
             <div class="main wrapper clearfix">
-                <article id="help">
+                <article>
                     <header>
-                        <h1><button id="generer_equation_complexe" title="générer une équation du second degré">Générer une équation</button></h1>
+                        <a id="generer_equation_complexe" title="générer une équation du second degré" class="ui-btn ui-btn-inline ui-icon-plus ui-btn-icon-left">Générer une équation</a>
                     </header>
                     <section>
                           <div id="equations_div"></div>
                 
-                           <div id="box" class="jxgbox" style="visibility : hidden; width:300px; height:300px;"></div>
+                           
                     </section>
-                    <section>
-                        <h2>article section h2</h2>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam sodales urna non odio egestas tempor. Nunc vel vehicula ante. Etiam bibendum iaculis libero, eget molestie nisl pharetra in. In semper consequat est, eu porta velit mollis nec. Curabitur posuere enim eget turpis feugiat tempor. Etiam ullamcorper lorem dapibus velit suscipit ultrices. Proin in est sed erat facilisis pharetra.</p>
-                    </section>
-                    <footer>
-                        <h3>article footer h3</h3>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam sodales urna non odio egestas tempor. Nunc vel vehicula ante. Etiam bibendum iaculis libero, eget molestie nisl pharetra in. In semper consequat est, eu porta velit mollis nec. Curabitur posuere enim eget turpis feugiat tempor.</p>
-                    </footer>
+                    <div id="help">
+                      <section>
+                          <h2>article section h2</h2>
+                          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam sodales urna non odio egestas tempor. Nunc vel vehicula ante. Etiam bibendum iaculis libero, eget molestie nisl pharetra in. In semper consequat est, eu porta velit mollis nec. Curabitur posuere enim eget turpis feugiat tempor. Etiam ullamcorper lorem dapibus velit suscipit ultrices. Proin in est sed erat facilisis pharetra.</p>
+                      </section>
+                    
+                      <footer>
+                          <h3>article footer h3</h3>
+                          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam sodales urna non odio egestas tempor. Nunc vel vehicula ante. Etiam bibendum iaculis libero, eget molestie nisl pharetra in. In semper consequat est, eu porta velit mollis nec. Curabitur posuere enim eget turpis feugiat tempor.</p>
+                      </footer>
+                    </div>
                 </article>
 
                 <aside id="aside">
-                    <h3>aside</h3> 
-                        <div id="graph-settings">
-                            <div>nombre de variables : <span id="amount-variable"></span></div>
-                            <div id="slider-variable"></div>
-                            <div>nombre de facteur : <span id="amount-facteur"></span></div>
-                            <div id="slider-facteur"></div>
-                            <div>Grandeur des coefficients  : <span id="amount-minimax"></span></div>
-                            <div id="slider-minimax"></div>
-                        </div>
-                    
-                        <div id="equation_panel">
+                    <h3>Panneau de configuration</h3>
+                        <form>
+                            <form>
+                            <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true"  name="operateur_type" id="operateur_type">
+                                <legend>Type :</legend>
+                                <input type="radio" name="radio-operateur" id="radio-operateur-addition" value="+" checked="checked">
+                                <label for="radio-operateur-addition">Addition</label>
+                                <input type="radio" name="radio-operateur" id="radio-operateur-multiplication" value="*">
+                                <label for="radio-operateur-multiplication">Multiplication</label>
+                                
+                            </fieldset>
+                            </form>
+                        <form>
                         
-                           
-                              <button id="generer_equation" title="générer une équation du premier degré">Générer</button>
-                              <button id="inserer_equation" title="Ajouter au système d'équation">Inserer</button>     
-                              
-                              
-                              
-                              <button class="selectAllButton" title="Sélectionner tous les termes de cette équation">Sélectionner tout</button>
-                              
-                              <button class="sommationMonome" title="Effectuer la somme des termes sélectionnés dans chaque membre">&Sigma;</button>
-                              <button class="simplifier_les_monomes" title="rendre les fractions des termes sélectionnés irréductibles">&frac12;</button>   
-                                             
-                              <input id="equation_string" type="text" size="70" value="">
-                              <button id="effacer_equation_string" title="effacer">Effacer</button>
-                              <button id="var_&leftarrow;" class='panel_touch'>&leftarrow;</button>   
-
-                              <button class="ajouter" title="Ajouter un terme à chaque membre de cette équation">
-                                 <span class="equation_string_sample">+</span>
-                              </button>
-                              <button class="retrancher" title="Retrancher un terme à chaque membre de cette équation">
-                                  <span class="equation_string_sample">-</span>
-                              </button>
-                              <button class="multiplier_distribuer" title="Multiplier par un terme chaque membre de cette équation">
-                                  <span class="equation_string_sample">*.*.</span>
-                              </button>
-                              <button class="multiplier_factoriser" title="Multiplier par un terme chaque membre de cette équation">
-                                  <span class="equation_string_sample">*(..)</span>
-                              </button>        
-                              <button class="diviser"  title="Diviser par un terme chaque membre de cette équation">
-                                <span class="equation_string_sample">1/</span>
-                              </button>
-                             
-                               
-                      </div>
+                        <div id="equation-settings">
+                            <label for="slider-variable">nombre de variables :</label>
+                            <input type="range" name="slider-variable" id="slider-variable" value="2" min="0" max="5" data-highlight="true">
+                            
+                            <label for="slider-facteur">nombre de facteur :</label>
+                            <input type="range" name="slider-facteur" id="slider-facteur" value="1" min="0" max="5" data-highlight="true">
+                            
+                            <div data-role="rangeslider">
+                              <label for="rangeslider-minimax-min">Min coeffs :</label>
+                              <input name="rangeslider-minimax-min" id="rangeslider-minimax-min" min="0" max="10" value="1" type="range" />
+                              <label for="rangeslider-minimax-max">Max coeffs :</label>
+                              <input name="rangeslider-minimax-max" id="rangeslider-minimax-max" min="0" max="10" value="2" type="range" />
+                            </div>
+                       
+                        </div>
                       
                 </aside>
 
@@ -114,7 +101,7 @@
 
         <div id="footer" class="footer-container">
             <footer class="wrapper">
-                <h3>footer</h3>
+                <h3>BuzzerToby - Alain Busser & Florian Tobé</h3>
             </footer>
         </div>
 
@@ -123,6 +110,8 @@
 
         <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-ui.js"><\/script>')</script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.js"></script>
+
         <script src="js/plugins.js"></script>
         <script src="js/main.js"></script>
 
