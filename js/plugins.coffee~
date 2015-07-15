@@ -39,210 +39,479 @@ do ->
       console[method] = noop
   return
 # Place any jQuery/helper plugins in here.
-debug = false
-unique_id = 1
-activer_copier_symbole= ""
-activer_copier_contenu= {}
 
-changementSens = { '=': '=', '<': '>', '>': '<', '≤': '≥', '≥': '≤' }
-liste_des_operateurs = ['+','-']
-liste_des_chiffres =   ['1','2','3','4','5','6','7','8','9','0']  
-liste_des_variables =  ['x','y','z','t']
-liste_des_signes =     ['=','<','>','≤','≥']
 # effacer la zone de saisie 
 
 
-# Class Fraction
+###################################################################################################
+###################################################################################################
+###################################################################################################
+# Fraction
 class Fraction
   constructor: (@numerateur, @denominateur) ->
   
   irreductible: () ->
     [a, b] = [@numerateur, @denominateur]
     [a, b] = [b, a%b] until b is 0
-    @denominateur /= a
-    @numerateur /= a
-    if @denominateur < 0 then [@numerateur , @denominateur] = [-@numerateur;-@denominateur]
-    foo = new Fraction @numerateur,@denominateur
+    [@numerateur, @denominateur ] = [@numerateur / a, @denominateur / a ]
+    if @denominateur < 0 then [@numerateur , @denominateur] = [-@numerateur, -@denominateur]
+    return this
 
   inverse: () ->
     if @numerateur isnt 0
       [@numerateur,@denominateur]=[@denominateur,@numerateur]
-      foo = new Fraction @numerateur,@denominateur
+      return this
   
   oppose: () ->
     @numerateur = -@numerateur
-    foo = new Fraction @numerateur,@denominateur
-     
-ajouter_deux_fractions = (f1,f2) ->
-  if f1.denominateur isnt f2.denominateur
-    n = f1.numerateur * f2.denominateur + f2.numerateur * f1.denominateur
-    d = f1.denominateur * f2.denominateur
-  else
-    n = f1.numerateur + f2.numerateur
-    d = f1.denominateur
-  foo = new Fraction n, d
+    return this
   
-multiplier_deux_fractions = (f1,f2) ->
-  n = f1.numerateur * f2.numerateur
-  d = f1.denominateur * f2.denominateur
-  foo = new Fraction n, d
+  toString: () -> return "#{@numerateur}/#{@denominateur}"
+  
+  toHtml: () ->
+    if @numerateur/@denominateur is 1
+      html = "<span class='plus'>&plus;</span>"
+    else if @numerateur/@denominateur is -1
+      html = "<span class='moins'>&minus;</span>"
+    else if @denominateur is 1
+      if @numerateur < 0
+        html = "<span class='moins'>&minus;</span><span class='rationnel'>#{Math.abs(@numerateur)}</span>"
+      else
+        html = "<span class='plus'>&plus;</span><span class='rationnel'>#{@numerateur}</span>"
+    else
+      if @numerateur < 0
+        html = "<span class='moins'>&minus;</span><span class='fraction'><span class='top'>#{Math.abs(@numerateur)}</span><span class='bottom'>#{@denominateur}</span></span>"
+      else
+        html = "<span class='plus'>&plus;</span><span class='fraction'><span class='top'>#{@numerateur}</span><span class='bottom'>#{@denominateur}</span></span>"
+ 
+  ajouter: (fraction) ->
+    if @nominateur isnt fraction.denominateur
+      [@numerateur, @denominateur] = [@numerateur * fraction.denominateur + fraction.numerateur * @denominateur,  @denominateur * fraction.denominateur]
+    else
+      [@numerateur, @denominateur] = [@numerateur + fraction.numerateur, @denominateur]
+    return this
+    
+  multiplier: (fraction) -> 
+    [@numerateur, @denominateur] = [@numerateur * fraction.numerateur, @denominateur * fraction.denominateur]
+    return this
 
-# Evaluer value comme fraction
-string_to_frac = (value) ->
-  alert "string_to_frac(#{value}) starts !" if debug
+fracString_to_frac = (value) ->
+  #console.log "fracString_to_frac(#{value}) starts !" 
   foo = value.split("/")
   switch foo.length
     when 2
       [n,d] = [parseInt(foo[0]), parseInt(foo[1])]
-      if n? and d? then foo = new Fraction n,d else alert "Erreur : string_to_frac, n is #{n} and d is #{d} !"
+      if n? and d? then foo = new Fraction( n,d) else alert "Erreur : fracString_to_frac, n is #{n} and d is #{d} !"
     when 1
       n = parseInt(foo[0])
-      if n? then foo = new Fraction n,1 else alert "Erreur : string_to_frac, n is #{n} !"
+      if n? then foo = new Fraction(n,1) else alert "Erreur : fracString_to_frac, n is #{n} !"
     else
-      alert "Erreur : string_to_frac, value is #{value} !"
+      alert "Erreur : fracString_to_frac, value is #{value} !"
+
+###################################################################################################
+###################################################################################################
+################################################################################################### 
+# Monomes
     
-# afficher une fraction en html
-frac_to_html = (fraction) ->
-  if fraction.denominateur is 1
-    if fraction.numerateur < 0
-      html = "<span class='moins'>&minus;</span><span class='rationnel'>#{Math.abs(fraction.numerateur)}</span>"
-    else
-      html = "<span class='plus'>&plus;</span><span class='rationnel'>#{fraction.numerateur}</span>"
-  else
-    if fraction.numerateur < 0
-      html = "<span class='moins'>&minus;</span><span class='fraction'><span class='top'>#{Math.abs(fraction.numerateur)}</span><span class='bottom'>#{fraction.denominateur}</span></span>"
-    else
-      html = "<span class='plus'>&plus;</span><span class='fraction'><span class='top'>#{fraction.numerateur}</span><span class='bottom'>#{fraction.denominateur}</span></span>"
+class Monome
+  constructor: (@fraction, @symbol, @power) ->
+    @id = "##{unique_id++}"
+    @fraction ?= new Fraction(1,1)
+    @symbol ?= "1"
+    @power ?= 1
+  
+  isZero : () -> @fraction.numerateur is 0 
+  
+  isOne : () -> ( (@fraction.numerateur/@fraction.denominateur is 1) and ( @symbol is "1" ) )  
+  
+  clone : () -> 
+    m = new Monome()
+    m.id = "##{unique_id++}"
+    m.parent_id = @parent_id
+    m.fraction = @fraction
+    m.symbol = @symbol
+    m.power = @power
+    return m
+     
+  randomize: (@symbol, @power) ->
+    min = -10
+    max = 10
+    coeff = Math.floor(Math.random() * (max-min+1)) + min
+    @fraction = new Fraction(coeff,1)
+    return this
 
-
-mettre_a_jour_ce_monome = (monome)->
-  try
-    id = monome.parent().attr("id").split("_")[1]
-    data_type = monome.attr("data-type")
-    fraction = string_to_frac monome.attr( "data-value")
-    html = "<span id='monome_html_#{id}' class='monome_html'>"
-    html += frac_to_html fraction
-    switch data_type
-      when "symbol"
-        symbol = monome.attr("data-symbol")
-        if fraction.numerateur*fraction.denominateur in [-1,1]
-          if fraction.numerateur/fraction.denominateur is 1
-            monome.html( "<span class='droppable'><span class='plus'>+</span><span>#{symbol}</span></span>" )
+  update : () ->
+    @parent_id = "##{$( @id ).parent().attr( "id" )}"
+    if (( not generate ) and ( $( @id ).siblings().length is 0 ) and ( not $( @parent_id ).parent().hasClass( "equation" ) ) )
+      $( @parent_id ).contents().unwrap()
+      @parent_id = "##{$( @id ).parent().attr( "id" )}"
+    
+    $( @id ).attr "data-fraction", @fraction.irreductible().toString()
+    if this.isZero()    then $( @id ).attr( "data-symbol", @symbol = "1" ) else $( @id ).attr( "data-symbol", @symbol ) 
+    if (@symbol is "1") then $( @id ).attr "data-power", @power = 1        else $( @id ).attr "data-power", @power  
+    
+    o = get_operateur $( @parent_id )
+    if not generate
+      switch o.type # si l'operateur est une...
+        when "addition"
+          if ( ( this.isZero() ) and ( $( @id ).siblings().length isnt 0 ) )# et si ce monome c'est zero
+            $( @id ).remove() 
+          else 
+            $( @id ).html( this.html_content() ) # mais que c'est le dernier on le garde...
+        when "multiplication"
+          if ( ( this.isOne()  ) and ( $( @id ).siblings().length isnt 0 ) )# et si ce monome c'est zero
+            $( @id ).remove() 
           else
-            monome.html( "<span class='droppable'><span class='moins'>&minus;</span><span>#{symbol}</span></span>" )
-        else
-          monome.html( "#{html}<span>#{symbol}</span></span>")                   
-      when "rationnel"
-        monome.html( "#{html}</span>" )
-    
-    $li_gauche = $( "#membreDeGauche_#{id} > li")
-    if $li_gauche.length is 1 and $li_gauche.attr("data-symbol")
-      if $li_gauche.attr("data-value") is "1/1" or $li_gauche.attr("data-value") is "1"
-        $( "#activer_copier_#{id}" ).show()
-      else
-        $( "#activer_copier_#{id}" ).hide()
+            $( @id ).siblings().remove() if this.isZero() # si c'est un zero il absorbe les voisins
+            $( @id ).html( this.html_content() )
     else
-      $( "#activer_copier_#{id}" ).hide()
+      $( @id ).html( this.html_content() )
+    
+    $( "#{o.id}.addition > #{@id}.monome" ).droppable accept : "#{o.id}.addition > li.monome", hoverClass : "state-hover", activeClass: "li-state-active", drop: (event, ui) ->   
+      event.stopImmediatePropagation()
+      event.stopPropagation()
+      console.log "drop l'addition !"
+      draggable = get_monome( ui.draggable ) 
+      droppable = get_monome( $( this ) )  
+      if ( ((draggable.symbol is droppable.symbol) and (draggable.power is droppable.power)) or ( draggable.isZero() ) )
+        droppable.fraction.ajouter draggable.fraction  
+        droppable.update()
+        draggable.remove()
+      else
+        if (draggable.power isnt droppable.power)
+          alert "attention, ce n'est pas la meme puissance !"
+        else
+          alert "On ne peut pas tout mélanger !"
+      megateuf()
+          
+    $( "#{o.id}.multiplication > #{@id}.monome" ).droppable accept : "#{o.id}.multiplication > li.monome", hoverClass : "state-hover", activeClass: "li-state-active", drop: (event, ui) ->      
+      event.stopImmediatePropagation()
+      event.stopPropagation()
+      console.log "drop la multiplication !"
+      draggable = get_monome( ui.draggable )
+      droppable = get_monome( $( this ) )
+      droppable.fraction.multiplier draggable.fraction
+      draggable.fraction = new Fraction(1, 1) if ( not draggable.isZero() ) 
+      if (draggable.symbol is droppable.symbol)
+        droppable.power += draggable.power
+        draggable.remove()
+      else if draggable.symbol is "1"
+        draggable.remove() 
+      else if droppable.symbol is "1"
+        droppable.symbol = draggable.symbol
+        droppable.power = draggable.power
+        draggable.remove() 
+      else
+        [draggable.symbol, droppable.symbol ] = [  droppable.symbol, draggable.symbol ]
+        [draggable.power, droppable.power ] = [  droppable.power, draggable.power ]
+        draggable.update()
+      droppable.update() 
+      megateuf()
+          
+  irreductible : () -> 
+    @fraction.irreductible()
+    this.update()
+  
+  remove : () -> $( @id ).remove()
+  
+  html_content : () ->
+    if ( (@symbol isnt "1") or ( (Math.abs(@fraction.numerateur/@fraction.denominateur) is 1 ) ) )
+      symbol_div =  "<span class='symbol'>#{@symbol}</span>"
+    else
+      symbol_div =  ""  
+    power_div = if (@power is 1) then "" else "<sup class='power'>#{@power}</sup>"
+    html = "#{@fraction.toHtml()}#{symbol_div}#{power_div}"
+    
+  insert: ( @parent_id ) ->
+    $( @parent_id ).append "<li id='#{@id[1..]}' class='monome item' data-fraction='#{@fraction}' data-symbol='#{@symbol}'  data-power='#{@power}'></li>"
+    this.update()
+    
+  insert_from_string : ( @equation_id, monomeString) ->
+    m = monomeString.split(".")
+    @fraction = fracString_to_frac m[0]
+    alert @fraction
+    if m.length > 1
+      m = m[1].split("^")
+      [ @symbol, @power ] = [ m[0], m[1] ]
+    else
+      [ @symbol, @power ] = [1, 1]
+    (new Monome()).insert( @equation_id )
+      
+  ajouter: (monome) ->
+    if (@symbol is monome.symbol)
+      @fraction.ajouter monome.fraction
+    else
+      alert "On ne mélange pas symboles & chiffres !"
+    return this
+  
+  toString: () -> return "#{@fraction.toString()}.#{@symbol}^#{@power}"
+  
+  toArray: () -> monomeString_to_array(this.toString())
+  
+  toHtml: () ->
+    html = "<li id='#{@id[1..]}' class='monome item' data-fraction='#{@fraction.toString()}' data-symbol='#{@symbol}' data-power='#{@power}'><span class='monome_html'>#{this.html_content()}</span></li>"
+
+monome_irreductible = ($monome) -> (m = get_monome($monome)).irreductible()
+  
+monomeString_to_array = (s) ->
+  console.log "monomeString_to_array(#{s})" if debug
+  pattern_terme = /([\+\-]?\d+(?:\/\d+)*)[.+](\w+)\^(\d+)*/g
+  foo = s.match(pattern_terme)
+  if (foo? and foo[0] is s)
+    foo = regex.exec pattern_terme
+    fracString = foo[1]
+    symbol = foo[2]
+    power = foo[3]
+  else
+    alert "Vous devriez effacer l'invite de commande et envisager quelquechose de mieux pondéré...ok !?"
+
+get_monome = ($monome) ->
+  if ( $monome.is("[data-fraction]") and $monome.is("[data-symbol]") and $monome.is("[data-power]") )
+    m = new Monome()
+    m.id = "##{$monome.attr('id')}"
+    m.parent_id = "##{$( m.id ).parent().attr('id')}"
+    m.fraction = fracString_to_frac $( m.id ).attr("data-fraction")
+    m.symbol = $( m.id ).attr("data-symbol")
+    m.power = parseInt( $( m.id ).attr("data-power") )
+    return m
+  else alert "get_monome did not work !"
+###################################################################################################
+###################################################################################################
+###################################################################################################
+#Operateur
+     
+class Operateur
+  constructor: (@symbol, @compacted) ->
+    classe = {"*": "multiplication", "+" : "addition"}
+    @id         = "##{unique_id++}"
+    @symbol    ?= "+"
+    @type       = classe[@symbol]
+    @compacted ?= false
+  
+  toHtml : () -> html = "<ul id='#{@id[1..]}' class='operateur #{@type} item' data-symbol='#{@symbol}' data-type='#{@type}' data-compacted='#{@compacted}'></ul>"
+  
+  clone : () ->
+    o = new Operateur()
+    o.id        = "##{unique_id++}"
+    o.parent_id = @parent_id
+    o.type      = @type
+    o.symbol    = @symbol
+    o.compacted = @compacted
+    return o
+  
+  monomesString_insert: (membre) -> 
+    for monomeString in membre
+      (new Monome()).insert_from_string(@id, monomeString)
+    
+  toStringId : () -> 
+    symbol = @symbol
+    string = ""
+    $( @id ).children().each ->
+      if $(this).is "ul"
+        m = get_operateur( $( this ) )
+        string += "#{symbol}[#{m.toStringId()}]"
+      else
+        m = get_monome( $( this ) )
+        string += "#{symbol}#{m.id}"
+    return string[1..]
+    
+stringIdToString = (stringId) ->
+  stringId.replace /(\#\d+)/g, (match, id, offset, string) ->
+      console.log id
+      get_monome( $(id) ).toString()
+
+get_operateur = ( $operateur ) ->
+  if ( $operateur.is("[data-symbol]") and $operateur.is("[data-type]") and $operateur.is("[data-compacted]") )
+    o = new Operateur()
+    o.id        = "##{$operateur.attr('id')}"
+    o.parent_id = "##{$( o.id ).parent().attr('id')}"
+    o.type      = $( o.id ).attr( "data-type" )
+    o.symbol    = $( o.id ).attr( "data-symbol" )
+    o.compacted = $( o.id ).attr( "data-compacted" )
+    return o
+  else alert "get_operateur did not work !" 
+###################################################################################################
+###################################################################################################
+###################################################################################################
+#Équation   
+  
+megateuf = () ->
+  try
+    $( "li.monome" ).each -> get_monome( $( this ) ).update()
   catch error
-    alert "mettre_a_jour_ce_monome : #{error}"
   finally
   
-  
+    $( "ul.operateur" ).each -> 
+      o = get_operateur( $(this) )
+      if ( ( o.symbol is $( o.parent_id ).attr("data-symbol") ) or ( ( $(o.id).siblings().length is 0 ) and ( not $( o.parent_id ).hasClass("equation") ) ) ) #(+ (+) ) | (+ (+) )
+        $( o.id ).contents().unwrap()
+        megateuf()
 
-  
-# Afficher le contenu des termes de l'equation  
-mettre_a_jour_les_monomes = ->
-  # Rendre sortable et connectable les equations
-  makeSortable = () -> 
-    makeSortableSide = (Side) ->
-      oppositeSide = if Side is "Gauche" then "Droite" else "Gauche"
-      $("#equations_div").sortable  
-      $( ".membreDe#{Side}" ).each ->
-        id = $( this ).attr("id").split("_")[1]
+    $( ".equation ul.operateur" ).each ->   
+      o = get_operateur( $(this) )
+      #Addition de multiplication
+      $( "#{o.id}.addition > ul.multiplication" ).droppable accept : "#{o.id}.addition > ul.multiplication", hoverClass : "state-hover", activeClass: "ul-state-active", drop: (event, ui) ->  
+        event.stopImmediatePropagation()
+        event.stopPropagation()    
+        droppable = get_operateur( $( this ) )
 
-        $( "#membreDe#{Side}_#{id} > li" ).droppable
-          accept: "#membreDe#{Side}_#{id} > li"
-          hover: -> $(this).css('cursor','crosshair')
-          hoverClass: "ui-state-hover"
-          cursor: 'crosshair'
-          tolerance : "pointer"
-          drop: (event, ui) ->
-            ajouter_m1_a_m2(ui.draggable, $( this ) )
-            mettre_a_jour_ce_monome $( this )    
-        $( "#membreDe#{Side}_#{id}" ).sortable
-          connectWith: "#membreDe#{oppositeSide}_#{id}",
-          update : -> mettre_a_jour_les_monomes(id),
-          receive : (event, ui) ->
-            changer_de_membre(event, ui,id)        
-    makeSortableSide("Gauche") 
-    makeSortableSide("Droite")
-    $("#equations_div" ).sortable()
- 
-  $(".equation").each ->
-    id = $( this ).attr("id").split("_")[1]
-    for Side in ["Gauche","Droite"]
-      side = if Side is "Gauche" then "gauche" else "Droite"
-  $(".monome").each ->
-    mettre_a_jour_ce_monome( $( this ) )      
-  makeSortable()
-  
-insert_monome = (side,fraction_string,symbol) ->
-  try
-    unique_id++
-    if not symbol?
-      foo = "<li id='monome_#{unique_id}' class='monome #{side}' data-value='#{fraction_string}' data-type='rationnel'></li>"
-    else
-      foo = "<li id='monome_#{unique_id}' class='monome #{side}' data-value='#{fraction_string}' data-type='symbol' data-symbol='#{symbol}'></li>"  
-  catch error
-      print "insert_monome: #{error}"
-  finally 
-$("#effacer_equation_string").on "click", ->  $( "#equation_string" ).val( "" ) 
+        draggable = get_operateur( ui.draggable )
+        str1 = stringIdToString( droppable.toStringId() ) 
+        str2 = stringIdToString( draggable.toStringId() )    
+        [match1, match2 ] = [/([-+]?\d+(?:\/\d+)?)[\.+](.*)/g.exec( str1 ), /([-+]?\d+(?:\/\d+)?)[\.+](.*)/g.exec( str2 ) ]
+        if ( match1? and match2? and (match1.length is 3) and (match2.length is 3 ) and (match1[2] is match2[2]) )
+          console.log "match factor !"
+          [ m1, m2 ] = [ get_monome( $( droppable.id ).children("li:first") ), get_monome( $( draggable.id ).children("li:first") ) ]
+          m1.fraction.ajouter m2.fraction
+          $( draggable.id ).remove()
+          megateuf()
+        else alert "les facteurs ne coincident pas !" 
+      
+      #distributivité de la multiplication sur l'addition
+      $( "#{o.id}.multiplication > ul.addition" ).droppable accept : "#{o.id}.multiplication > li.monome, #{o.id}.multiplication > ul.addition", hoverClass : "state-hover", activeClass: "ul-state-active", drop: (event, ui) ->
+        generate = true        
+        droppable = get_operateur( $( this ) )
+        if ui.draggable.is "ul.addition"  # Distribution d'une multiplication sur une addition
+          draggable = get_operateur( ui.draggable )
+
+          $( "#{droppable.id} > .item").each () ->  
+                     
+            factor = if $(this).is("ul") then get_operateur($(this)) else get_monome($(this))
+            o1 = new Operateur( "*" )
+            $( factor.id ).after( o1.toHtml() )
+            console.log factor.symbol
+            
+            for item in [factor, draggable] 
+              clone = item.clone()
+              $( o1.id ).append clone.toHtml()            
+              $( clone.id ).html( $( item.id ).html() )
+              $( clone.id ).find('[id]').each -> $( this ).attr("id", "#{unique_id++}" )
+            $( factor.id ).remove()
+
+          $( draggable.id ).remove()
+        else
+          draggable = get_monome ui.draggable
+          $( "#{droppable.id} > .item").each () ->
+            generate = true
+            o1 = new Operateur( "*" )
+            $( this ).after( o1.toHtml() )
+            clone = draggable.clone()
+            $( o1.id ).append( $( this ) ).append( clone.toHtml() )
+            $( clone.id ).html( $( draggable.id ).html() )
+            $( clone.id ).find('[id]').each -> $( this ).attr("id", "#{unique_id++}" )
+          $( draggable.id ).remove()   
+        generate = false      
+        megateuf()
+
+
+      $( ".equation > #{o.id}" ).droppable 
+        accept : (draggable) -> 
+         ( ( draggable.parent().parent().attr("id") is $( o.parent_id ).attr("id") ) and ( draggable.parent().attr("id") isnt $( o.id ).attr("id") ) and ( draggable.parent().hasClass("addition") ) )
+        hoverClass : "state-hover"
+        activeClass: "ul-state-active"
+        drop: (event, ui) ->
+          o = get_operateur( $(this) )
+          switch o.type
+            when "addition"
+              generate = true
+              o = new Operateur( "*" )
+              $( this ).append( o.toHtml() )
+              m = new Monome()
+              m.fraction.oppose()
+              m.insert o.id
+              $( o.id ).append ui.draggable
+              generate = false
+              megateuf()
+            when "multiplication"      
+              generate = true
+              w = new Operateur( "+" )
+              $( this ).wrap w.toHtml() 
+              o = new Operateur( "*" )
+              $( w.id ).append( o.toHtml() )
+              m = new Monome()
+              m.fraction.oppose()
+              m.insert o.id
+              $( o.id ).append ui.draggable
+              generate = false
+          megateuf()
+            
     
+    $( "ul.operateur, li.monome" ).draggable revert : true
+   
+generate_equation = () ->
+  generate = true
+  id = unique_id++
+  signe = signes[Math.floor Math.random() * signes.length]
+  html =
+  """
+  <div id='equation_#{id}' class='equation' >
+      <a href='#' id='deleteButton_#{id}' class="deleteButton ui-btn ui-corner-all ui-icon-delete ui-btn-icon-notext ui-btn-inline ui-btn-left">title=Supprimer cette équation</a>
+      <span id='signe_#{id}' class='signe'>#{signe}</span>
+  </div>
+  """
+  $( "#equations_div" ).append html
+  #$("#equations_div" ).sortable()
+  alphabet = (['1', 'a','b','c','d','e','f','g','h','i','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'][0..parseInt $( "#slider-variable" ).val()])
+  
+  create_equation_membre = ( type, place ) ->
+    other = {"+" : "*", "*" : "+"}  
+    op1 = new Operateur( type )
+    if place is "before" then  $( "#signe_#{id}" ).before(op1.toHtml()) else $( "#signe_#{id}" ).after(op1.toHtml())
+    console.log $("#operateur_type :radio:checked").val(), type, op1
+    for i in [1..parseInt $( "#slider-facteur" ).val()]
+      op2 = (new Operateur type )
+      $( op1.id ).append( op2.toHtml() )
+      for j in [1..parseInt $( "#rangeslider-minimax-max" ).val()]
+        op3 = new Operateur( other[type] )
+        $( op2.id ).append( op3.toHtml() )
+        for k in alphabet
+          m = new Monome()
+          m.randomize( alphabet.shuffle()[0] ,1).insert( op3.id )
+          
+  create_equation_membre( $("#operateur_type :radio:checked").val(), "before" ) 
+  create_equation_membre( $("#operateur_type :radio:checked").val(), "after" )
+  megateuf()
+  generate = false
 
-$( "#add_equation" ).on "click", () ->
-  #Obtenir le code html d'un membre d'une equation    
-  membre_as_html = (membre,side,id) ->
-    Side = if side is "gauche" then "Gauche" else "Droite"
-    html = "<ul id='membreDe#{Side}_#{id}' class='membreDe#{Side}'>"
-    for monome in membre
-      m = monome.split(")")
-      if m[1]
-        html += insert_monome side, m[0][1..], m[1]
-      else
-        unique_id++
-        html += insert_monome side, m[0][1..]
-    html += "</ul>"    
+ajouter_membre = (string) ->
+  id = get_focused_id()
+  if (id )
+    $( "#equation_#{id} > ul.operateur" ).each ->  
+      op = new Operateur( "+")
+      $(this).append( op.toHtml() )
+      op.monomesString_insert( string )
 
-  unique_id++
-  id = unique_id
-  if s = $( "#equation_string" ).val()
-    if s.slice(-1) in liste_des_chiffres
-      $( "#equation_string" ).val(s + ')')
-    # On récupère l'equation et on enlève tous les whitespaces \s+
-    s = $( "#equation_string" ).val().replace(/\s+/g, '')
-    # regex digest !
-    pattern_equation = /(\([\+\-]*\d+[/\d+]*\)(\w{1,}²{0,1})*)(\+(\([\+\-]*\d+[/\d+]*\)(\w{1,}²{0,1})*))*[<≤=≥>](\([\+\-]*\d+[/\d+]*\)(\w{1,}²{0,1})*)(\+(\([\+\-]*\d+[/\d+]*\)(\w{1,}²{0,1})*))*/g
-    foo = s.match(pattern_equation)
-    if foo[0].length is s.length
-      signe = s.match(/[<≤=≥>]/g)[0]
-      s = s.split(signe)
-      mdg = s[0].split("+")
-      mdd = s[1].split("+")   
-      html =  """
-              <div id='equation_#{id}' class='equation' >
-                  <button id='deleteButton_#{id}' class='deleteButton' title='Supprimer cette équation'>X</button>
-                  <div id='choixMonome_#{id}' class='choixMonome'></div>           
-              """
-      html += membre_as_html(mdg,"gauche",id)
-      html += "<span id='signe_#{id}' class='signe'>#{signe}</span>"
-      html += membre_as_html(mdd,"droite",id)
-      html += "<p id='solution_#{id}'></p></div>"
-      $( "#equations_div" ).append(html)
-      mettre_a_jour_les_monomes()
-    else
-      alert "Vérifier que l'équation est correctement formatée"
-    
-    
+multiplier_distribuer_membre = (facteur) ->
+  id = get_focused_id()
+  if (id and facteur.denominateur)
+    $( "#equation_#{id} > ul.operateur > li.monome").each ->
+      m = get_monome( $( this ) )
+      m.fraction.multiplier facteur
+      m.update()
+
+multiplier_factoriser_membre = (string) ->
+  id = get_focused_id()
+  if (id )
+    $( "#equation_#{id} > .operateur" ).each ->
+      op = new Operateur( "*" )
+      $(this).wrap op.toHtml() 
+      op.monomesString_insert( string )
+
+get_focused_id = () -> id = if $( ".focus" ).attr("id") then $( ".focus" ).attr("id").split("_")[1] else alert "Selectionner une équation !"
+  
+operation_sur_equation = (mode, id) ->
+  id = get_focused_id()
+  array = monomeString_to_array $( "#equation_string" ).val()
+  if (id? and array?)
+    switch mode
+      when "diviser"               then multiplier_distribuer_membre fracString_to_frac array[0], array[1]
+      when "multiplier_factoriser" then multiplier_factoriser_membre $( "#equation_string" ).val().split("+")
+      when "multiplier_distribuer" then multiplier_distribuer_membre fracString_to_frac array[0], array[1]
+      when "retrancher"            then ajouter_membre (fracString_to_frac array[0] ).oppose(), array[1]
+      when "ajouter"               then ajouter_membre $( "#equation_string" ).val().split("+")
+  else alert "Poids surement mal formé !" 
+
+
 
 # ---
 # generated by js2coffee 2.0.4

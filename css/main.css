@@ -187,8 +187,8 @@ ul.operateur, li.monome, .signe {
   justify-content: center;*/
   font-size: 30px; 
   font-weight : bold;
-  margin:0px;
-  padding: 0px;
+  margin: 0 0.25em 0 0.25em;;
+  padding: 0 
   
 }
 * {
@@ -233,6 +233,7 @@ ul.operateur, li.monome, .signe {
 sup.power {
   font-size : 0.5em;
 }
+
 .operateur.multiplication > li:not(:first-child) > span.plus {
   display : none;
 }

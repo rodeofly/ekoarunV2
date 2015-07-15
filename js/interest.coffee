@@ -274,3 +274,12 @@ generate_equation_string = (n, min = -10, max = 10) ->
 }
 
 
+
+
+
+
+
+
+
+
+

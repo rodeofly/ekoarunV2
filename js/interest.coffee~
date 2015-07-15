@@ -233,7 +233,8 @@ generate_equation_string = (n, min = -10, max = 10) ->
                              
                                
                       </div>  
-  
+
+<li><a id="toggle-box" href="#"  class="ui-btn ui-btn-inline ui-icon-plus ui-corner-all ui-btn-icon-notext" >on/off graph</a></li>
 .jxgbox {
     position : fixed !important;
     top : 33%;
